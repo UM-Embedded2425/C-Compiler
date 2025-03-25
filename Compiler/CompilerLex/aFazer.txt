@@ -1,0 +1,4 @@
+Flex/Bison:
+
+criar token que dê erro para o token de identificador invalido?
+keywords específicas do Cx51 (interrupt, por exemplo)

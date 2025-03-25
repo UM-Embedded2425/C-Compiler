@@ -1,0 +1,23 @@
+#include <stdio.h>
+#define LERO 1
+
+void prototype();
+
+void not_prototype()
+{
+    return 1;
+}
+
+int int_value = 0;
+char char_value = 0;
+float float_value = 0;
+
+void main ()
+{
+
+}
+
+void prototype()
+{
+    return 0;
+}

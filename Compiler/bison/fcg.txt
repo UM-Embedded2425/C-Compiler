@@ -1,0 +1,120 @@
+//section 1
+
+program -> stmt_seq
+stmt_seq -> statment; {stmt_seq}
+statment -> control_stmt | declaration_stmt | exp
+
+//section 2
+control_stmt -> 
+    if_stmt     |
+    while_stmt  |
+    for_stmt    |
+    switch_stmt |
+    break       |
+    continue    |
+    goto id
+
+
+if_stmt -> if ( exp ) control_statment [ else_stmt elseif_stmt]
+
+else_stmt -> else control_statment
+
+elseif_stmt -> {elseif ( exp ) control_statment} else_stmt
+//-----
+
+while_stmt -> while ( exp ) control_statment | do control_statment while ( exp ) 
+//-----
+
+for_stmt -> for ( statment , exp , statment ) control_statment 
+//-----
+
+switch_stmt -> switch ( exp ) case_seq
+
+case_seq -> 
+    case ( exp ): control_statment case_seq |
+    case ( exp ): control_statment          |
+    default: control_statment
+//-----
+control_statment -> statment; | \{\ stmt_seq \}\
+
+//---------------------------------------------------------------------------------------------------------
+declaration_stmt ->
+    variable_declaration |
+    complex_declaration 
+
+variable_declaration -> //slide 14
+    {variable_sign}{modifier} type {*} [id{\[\exp\]\}  assigment_stmt] 
+
+complex_declaration ->
+    typedef_declaration | struct_union_declaration | enum_declaration
+
+typedef_declaration -> typedef declaration_stmt id
+
+struct_union_declaration ->
+    [struct union] id \{\declaration_stmt;{declaration_stmt;}\}\
+
+enum_declaration ->
+    enum id \{\ id{,id} \}\
+
+modifier -> [const volitile] | extern
+
+variable_sign -> signed | unsigned
+
+type -> void | char | {[long short]} int | float | double
+
+//-------------------------------------------------------------------------------------------
+
+assigment_stmt -> 
+    id{\[\exp\]\} = exp
+    
+
+exp ->
+    invocation | 
+    term |
+    equation
+
+equation -> term {op term}
+
+invocation ->
+    id ({parameters}){stmt_seq}
+
+parameters -> parameters {,parameters} | type id
+
+term -> 
+    \{\exp{,exp}\}\ |
+    "str"|
+    'ascii'|
+    number
+
+//----------------------------------------------------------------------------------------------
+
+ternary -> exp ? term : term
+
+
+//----------------------------------------------------------------------------------------------
+
+op_14 -> ,
+op_13 -> = | += | -= | *= | /= | %= | &= | ^= | \|\= | <<= | >>=
+op_12 -> ternary
+op_11 -> \|\\|\
+op_10 -> &&
+op_9 -> \|\
+op_8 -> ^
+op_7 -> &
+op_6 -> == | !=
+op_5 -> << | >>
+op_4 -> + | -
+op_3 -> mult | / | %
+op_2 -> ++ | -- | sign | ! | ~ | cast | pointer(*) | addres(&) | sizeof
+op_1 -> ( | )
+
+//----------------------------------------------------------------------------------------------
+
+
+
+
+
+em falta
+    operações de forma matematica
+    register
+    _packed

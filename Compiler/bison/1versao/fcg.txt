@@ -1,0 +1,94 @@
+program -> stmt_seq
+stmt_seq -> statment; stmt_seq | statment;
+statment -> control_stmt | declaration_stmt | exp
+
+control_stmt -> 
+    if_stmt |
+    while_stmt |
+    for_stmt |
+    switch_stmt
+
+
+if_stmt -> if ( exp ) control_statment 
+
+while_stmt -> while ( exp ) control_statment | do control_statment while ( exp ) 
+
+for_stmt -> for ( statment , exp , statment ) control_statment 
+
+switch_stmt -> switch ( exp ) case_seq
+
+case_seq -> case ( exp ): control_statment case_seq | case ( exp ): control_statment | default: control_statment
+
+control_statment -> statment; | \{\ stmt_seq \}\
+
+//---------------------------------------------------------------------------------------------------------
+declaration_stmt ->
+    {variable_sign}{modifier} type {*} id{\[\exp\]\} | assigment_stmt | invocation
+
+
+modifier -> const | volitile | extern
+
+variable_sign -> signed | unsigned
+
+type -> void | char | {[long short]} int | float | double
+
+//-------------------------------------------------------------------------------------------
+
+assigment_stmt -> 
+    id{\[\exp\]\} = exp
+    
+
+exp ->
+    invocation | 
+    term |
+    equation
+
+equation -> term {op term}
+
+invocation ->
+    id ({parameters}){stmt_seq}
+
+parameters -> parameters {,parameters} | type id
+
+term -> 
+    \{\exp,|exp\}\ |
+    "str"|
+    'ascii'|
+
+//----------------------------------------------------------------------------------------------
+
+ternary -> exp ? term : term
+
+
+//----------------------------------------------------------------------------------------------
+
+op_14 -> ,
+op_13 -> = | += | -= | *= | /= | %= | &= | ^= | \|\= | <<= | >>=
+op_12 -> ternary
+op_11 -> \|\\|\
+op_10 -> &&
+op_9 -> \|\
+op_8 -> ^
+op_7 -> &
+op_6 -> == | !=
+op_5 -> << | >>
+op_4 -> + | -
+op_3 -> mult | / | %
+op_2 -> ++ | -- | sign | ! | ~ | cast | pointer | & | sizeof
+op_1 -> ( | )
+
+//----------------------------------------------------------------------------------------------
+
+
+
+
+
+em falta
+    operações de forma matematica
+    structs
+    typedefs
+    goto
+    register
+    _packed
+    union
+    enum

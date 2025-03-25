@@ -1,0 +1,3 @@
+ORG 0x0000  ;MOV B
+MOV A, #10
+ADD A, @R0
