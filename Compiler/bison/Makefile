@@ -10,10 +10,10 @@ execute: all
 
 flex_:
 	@echo "[Make]Flex step"
-	flex flex_test.l
+	flex /2versao/Scanner.l
 
 bison_:
 	@echo "[Make]Bison step"
-	bison -t -d -v bison_test.y
-	g++ lex.yy.c bison_test.tab.c 
+	bison -t -d -v /2versao/bison_test2.y
+	g++ lex.yy.c /2versao/bison_test.tab2.c 
 #nothing yet :)

@@ -3,7 +3,6 @@
         #include <stdlib.h>
         #include "bison_test2.tab.h"
 %}
-
 /* Preprocessor directives */
 _preprocess_hash       "#"
 _preprocess_define     "#define"
@@ -23,11 +22,12 @@ _line_comment 		  "//".*
 _multiline_comment_start  "/*"
 _multiline_comment_end    "*/"
 
+
 _digit          [0-9]
 _binary_number	0[bB][01]+
 _octal_number	0[0-7]+
 _hex_number 	0[xX][0-9a-fA-F]+
-_number         [1-9][0-9]*
+_number         [0-9][0-9]*
 _identifier    {_letter}({_letter}|{_digit})*
 _letter         [a-zA-Z_]
 _newline        \n
@@ -71,7 +71,6 @@ _void           "void"
 _volatile       "volatile"
 _while          "while"
 __Packed        "_Packed"
-
 
 _open_paren     "("
 _close_paren    ")"
@@ -122,7 +121,79 @@ _two_dots       ":"
 _apostrophe 	"'"
 _quotation_mark \"
 
+/*Specific to 8051 https://courses.cs.washington.edu/courses/cse466/01au/Lab/C51.pdf */
+_nointvector     "nointvector"
+_compact        "compact"
+_db             "db"
+_disable        "disable"
+_eject          "eject" 
+_asm            "asm"
+_endasm          "endasm"
+_intpromote     "intpromote"
+_floatfuzzy     "FF"
+_interval       "interval"
+_large          "large"
+_listinclude    "listinclude"
+_maxaregs       "maxaregs"
+/*Keil Software — C51 Compiler User’s Guide  Page 47 onde ficou*/
+
+_code           "code"
+_data           "data"
+_idata          "idata"
+_bdata          "bdata"
+_xdata          "xdata"
+_pdata          "pdata"
+_small          "small"
+_bit            "bit"
+_sbit           "sbit"
+_sfr            "sfr"
+_sfr16          "sfr16"
+
+__at_           "_at_"
+_alien          "alien"
+_interrupt      "interrupt"
+__priority_      "_priority_"
+_reentrant      "reentrant"
+__task_          "_task_"
+_using          "using"
+_stringer       "stringer"
+
 %%
+/* 8051 specific*/
+{_nointvector}     { return NOINTVECTOR; }
+{_compact}         { return COMPACT; }
+{_db}              { return DB; }
+{_disable}         { return DISABLE; }
+{_eject}           { return EJECT; }
+{_asm}             { return ASM; }
+{_endasm}          { return ENDASM; }
+{_intpromote}      { return INTPROMOTE; }
+{_floatfuzzy}      { return FLOATFUZZY; }
+{_interval}        { return INTERVAL; }
+{_large}           { return LARGE; }
+{_listinclude}     { return LISTINCLUDE; }
+{_maxaregs}        { return MAXAREGS; }
+
+{_code}            { return CODE; }
+{_data}            { return DATA; }
+{_idata}           { return IDATA; }
+{_bdata}           { return BDATA; }
+{_xdata}           { return XDATA; }
+{_pdata}           { return PDATA; }
+{_small}           { return SMALL; }
+{_bit}             { return BIT; }
+{_sbit}            { return SBIT; }
+{_sfr}             { return SFR; }
+{_sfr16}           { return SFR16; }
+
+{__at_}            { return AT; }
+{_alien}           { return ALIEN; }
+{_interrupt}       { return INTERRUPT; }
+{__priority_}      { return PRIORITY; }
+{_reentrant}       { return REENTRANT; }
+{__task_}          { return TASK; }
+{_using}           { return USING; }
+{_stringer}        { return STRINGER; }
 
 {_preprocess_hash}        { return PREPROCESS_HASH; }
 {_preprocess_define}      { return PREPROCESS_DEFINE; }
@@ -255,10 +326,9 @@ _quotation_mark \"
     return NUMBER;
 }
 {_identifier}     { yylval.string = strdup(yytext); return ID; }
-{_letter}         { return LETTER; }
 
  /* Invalid sequences */
-{_invalid_sequence} { printf("%s invalid.\n", yytext); }
+{_invalid_sequence} { printf("%s invalid.\n", yytext);}
 
  /* Ignore whitespace and newlines */
 {_white_space}  { /* ignore */ }
@@ -266,8 +336,7 @@ _quotation_mark \"
 
  /* Handle end-of-file */
 <<EOF>> { return TOK_EOF; }
-
- /* Catch-all for unrecognized characters */ 
+ 
 . { printf("Unexpected token: %s\n", yytext); }
 %%
 
