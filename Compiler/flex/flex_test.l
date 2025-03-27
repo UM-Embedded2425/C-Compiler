@@ -2,8 +2,78 @@
 %{
         #include <stdlib.h>
 %}
+/*Specific to 8051 https://courses.cs.washington.edu/courses/cse466/01au/Lab/C51.pdf */
+_nointvector     "nointvector"
+_compact        "compact"
+_db             "db"
+_disable        "disable"
+_eject          "eject" 
+_asm            "asm"
+_endasm          "endasm"
+_intpromote     "intpromote"
+_floatfuzzy     "FF"
+_interval       "interval"
+_large          "large"
+_listinclude    "listinclude"
+_maxaregs       "maxaregs"
+/*Keil Software — C51 Compiler User’s Guide  Page 47 onde ficou*/
+
+_code           "code"
+_data           "data"
+_idata          "idata"
+_bdata          "bdata"
+_xdata          "xdata"
+_pdata          "pdata"
+_small          "small"
+_bit            "bit"
+_sbit           "sbit"
+_sfr            "sfr"
+_sfr16          "sfr16"
+
+__at_           "_at_"
+_alien          "alien"
+_interrupt      "interrupt"
+__priority_      "_priority_"
+_reentrant      "reentrant"
+__task_          "_task_"
+_using          "using"
+_stringer       "stringer"
+
+/* Preprocessor directives */
+_preprocess_hash       "#"
+_preprocess_define     "#define"
+_preprocess_include    "#include"
+_preprocess_ifdef      "#ifdef"
+_preprocess_ifndef     "#ifndef"
+_preprocess_if         "#if"
+_preprocess_else       "#else"
+_preprocess_elif       "#elif"
+_preprocess_endif      "#endif"
+_preprocess_undef      "#undef"
+_preprocess_error      "#error"
+_preprocess_line       "#line"
+_preprocess_pragma     "#pragma"
+
+_line_comment 		  "//".*
+_multiline_comment_start  "/*"
+_multiline_comment_end    "*/"
+
+_digit          [0-9]
+_binary_number	0[bB][01]+
+_octal_number	0[0-7]+
+_hex_number 	0[xX][0-9a-fA-F]+
+_number         [0-9][0-9]*
+_identifier    {_letter}({_letter}|{_digit})*
+_letter         [a-zA-Z_]
+_newline        \n
+_white_space    [ \t]+
+
+ /* Para reconhecer um identificador invalido, que comece com número
+          Ex: 5h7, 3z, 67j */
+_invalid_sequence ([0-9]+{_letter}[a-zA-Z0-9_]*) 
 
 
+_auto           "auto"
 _break          "break"
 _case           "case"
 _char           "char"
@@ -45,24 +115,127 @@ _close_square   "]"
 _open_curly     "{"
 _close_curly    "}"
 _semicolon      ";"
+_comma          ","
+_dot            "\."
+_arrow          "->"
 _asterisk       "*"
 _plus           "+"
+_inc		"++"
 _minus          "-"
+_dec		"--"
+_div		"/"
+_mod		"%"
 _bit_and        "&"
 _bit_xor        "^"
 _bit_or         "|"
+_bit_not	"~"
+_bit_left_shift "<<"
+_bit_right_shift ">>"
+_logical_and	"&&"
+_logical_or	"||"
+_logical_not	"!"
+_ternary        "\?"
+_greater_than   ">"
+_greater_equal  ">="
+_smaller_than   "<"
+_smaller_equal  "<="
+_equal          "=="
+_different      "!="
+_assign         "="
+_assign_plus    "+="
+_assign_minus   "-="
+_assign_mult    "*="
+_assign_div     "/="
+_assign_mod     "%="
+_assign_and     "&="
+_assign_or      "|="
+_assign_xor     "^="
+_assign_left_shift "<<="
+_assign_right_shift ">>="
+_two_dots       ":"
 
-_digit          [0-9]
-_number         {_digit}+
-_letter         [a-zA-Z_]
-_indentifier    {_letter}({_letter}|{_digit})*
-_newline        \n
-_white_space    [ \t]+
+_apostrophe 	"'"
+_quotation_mark \"
+
+
 
 %%
+{_nointvector}     { printf("NOINTVECTOR\n"); }
+{_compact}        { printf("COMPACT\n"); }
+{_db}             { printf("DB\n"); }
+{_disable}        { printf("DISABLE\n"); }
+{_eject}          { printf("EJECT\n"); } 
+{_asm}            { printf("ASM\n"); }
+{_endasm}         { printf("ENDASM\n"); }
+{_intpromote}     { printf("INTPROMOTE\n"); }
+{_floatfuzzy}     { printf("FLOATFUZZY\n"); }
+{_interval}       { printf("INTERVAL\n"); }
+{_large}          { printf("LARGE\n"); }
+{_listinclude}    { printf("LISTINCLUDE\n"); }
+{_maxaregs}       { printf("MAXAREGS\n"); }
+
+{_code}           { printf("CODE\n"); }
+{_data}           { printf("DATA\n"); }
+{_idata}          { printf("IDATA\n"); }
+{_bdata}          { printf("BDATA\n"); }
+{_xdata}          { printf("XDATA\n"); }
+{_pdata}          { printf("PDATA\n"); }
+{_small}          { printf("SMALL\n"); }
+
+{_bit}            { printf("BIT\n"); }
+{_sbit}           { printf("SBIT\n"); }
+{_sfr}            { printf("SFR\n"); }
+{_sfr16}          { printf("SFR16\n"); }
+
+{__at_}           { printf("AT\n"); }
+{_alien}          { printf("ALIEN\n"); }
+{_interrupt}      { printf("INTERRUPT\n"); }
+{__priority_}     { printf("PRIORITY\n"); }
+{_reentrant}      { printf("REENTRANT\n"); }
+{__task_}         { printf("TASK\n"); }
+{_using}          { printf("USING\n"); }
+{_stringer}       { printf("STRINGER\n"); }
 
 
+{_preprocess_hash}        { printf("%s hash\n", yytext);}
+{_preprocess_define}      { printf("%s define\n", yytext);}
+{_preprocess_include}     { printf("%s include\n", yytext);}
+{_preprocess_ifdef}       { printf("%s ifdef\n", yytext);}
+{_preprocess_ifndef}      { printf("%s ifndef\n", yytext);}
+{_preprocess_if}          { printf("%s if\n", yytext);}
+{_preprocess_else}        { printf("%s else\n", yytext);}
+{_preprocess_elif}        { printf("%s elif\n", yytext);}
+{_preprocess_endif}       { printf("%s endif\n", yytext);}
+{_preprocess_undef}       { printf("%s undef\n", yytext);}
+{_preprocess_error}       { printf("%s error\n", yytext);}
+{_preprocess_line}        { printf("%s line\n", yytext);}
+{_preprocess_pragma}      { printf("%s pragma\n", yytext);}
 
+{_line_comment} {
+    /* Consume everything until newline */
+    int c;
+    while ((c = input()) != '\n' && c != 0);
+    printf("Single-line comment detected\n");
+}
+
+{_multiline_comment_start} {
+    int c, prev = 0;
+    while ((c = input()) != 0) {
+        if (prev == '*' && c == '/') break; 
+          prev = c;
+    }
+    if (c == 0) {
+        printf("Unterminated comment detected!\n");
+    } else {
+        printf("Multi-line comment detected\n");
+    }
+}
+{_multiline_comment_end} { printf("%s end of comment\n", yytext);}
+{_apostrophe}  { printf("%s apostrophe\n", yytext);}
+{_quotation_mark} { printf("%s quotation mark\n", yytext);}
+
+
+{_auto}		{printf("%s auto\n", yytext);}
 {_break}        {printf("%s break\n", yytext);}
 {_case}         {printf("%s case\n", yytext);}
 {_char}         {printf("%s char\n", yytext);}
@@ -104,18 +277,57 @@ _white_space    [ \t]+
 {_open_curly}   {printf("%s {\n", yytext);}
 {_close_curly}  {printf("%s }\n", yytext);}
 {_semicolon}    {printf("%s semicolon\n", yytext);}
+{_comma}        {printf("%s comma\n", yytext);}
+{_dot}          {printf("%s dot\n", yytext);}
+{_arrow}        {printf("%s arrow\n", yytext);}
 {_asterisk}     {printf("%s asterisk\n",yytext);}
 {_plus}         {printf("%s plus\n",yytext);}
+{_inc}          {printf("%s increment\n", yytext);}
 {_minus}        {printf("%s minus\n",yytext);}
+{_dec}          {printf("%s decrement\n", yytext);}
+{_div}          {printf("%s division\n", yytext);}
+{_mod}          {printf("%s modulus\n", yytext);}
 {_bit_and}      {printf("%s bit_and\n",yytext);}
 {_bit_or}       {printf("%s bit_or\n",yytext);}
 {_bit_xor}      {printf("%s bit_xor\n",yytext);}
+{_bit_not}      {printf("%s bitwise_not\n", yytext);}
+{_bit_left_shift} {printf("%s bitwise_left_shift\n", yytext);}
+{_bit_right_shift} {printf("%s bitwise_right_shift\n", yytext);}
+{_logical_and}  {printf("%s logical_and\n", yytext);}
+{_logical_or}   {printf("%s logical_or\n", yytext);}
+{_logical_not}  {printf("%s logical_not\n", yytext);}
+{_ternary}      {printf("%s ternary\n", yytext);}
+{_greater_than} {printf("%s greater_than\n", yytext);}
+{_greater_equal} {printf("%s greater_equal\n", yytext);}
+{_smaller_than} {printf("%s smaller_than\n", yytext);}
+{_smaller_equal} {printf("%s smaller_equal\n", yytext);}
+{_equal}        {printf("%s equal\n", yytext);}
+{_different}    {printf("%s different\n", yytext);}
+{_assign}       {printf("%s assign\n", yytext);}
+{_assign_plus}  {printf("%s assign_plus\n", yytext);}
+{_assign_minus} {printf("%s assign_minus\n", yytext);}
+{_assign_mult}  {printf("%s assign_mult\n", yytext);}
+{_assign_div}   {printf("%s assign_div\n", yytext);}
+{_assign_mod}   {printf("%s assign_mod\n", yytext);}
+{_assign_and}   {printf("%s assign_and\n", yytext);}
+{_assign_or}    {printf("%s assign_or\n", yytext);}
+{_assign_xor}   {printf("%s assign_xor\n", yytext);}
+{_assign_left_shift} {printf("%s assign_left_shift\n", yytext);}
+{_assign_right_shift} {printf("%s assign_right_shift\n", yytext);}
+{_two_dots}     {printf("%s two_dots\n", yytext);}
 
+
+
+{_hex_number}	{printf("%s hex: %ld\n", yytext, strtol(yytext, NULL, 16));}
+{_octal_number}	{printf("%s octal: %ld\n", yytext, strtol(yytext, NULL, 8));}
 {_number}       {printf("%s number\n", yytext);}
-{_letter}       {printf("%s letter\n", yytext);}
-{_indentifier}  {printf("%s indentifier\n", yytext);}
-{_white_space}
-{_newline}
+{_binary_number} {printf("%s binary: %ld\n", yytext, strtol(yytext + 2, NULL, 2));}
+{_identifier}   {printf("%s identifier\n", yytext);}
+{_invalid_sequence} {printf("%s invalid.\n", yytext);}
+
+{_white_space}	{ /* ignore */ }
+{_newline}	{ /* ignore */ }
+
 <<EOF>>         {printf("EOF \n"); return 0;}
 .               {printf("%s ignored\n", yytext);}
 

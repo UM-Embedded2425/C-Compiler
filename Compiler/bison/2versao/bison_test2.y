@@ -16,7 +16,7 @@
 /* Tokens */
 %token          TOK_EOF     0       "end of input"
 %token <string> ID                  "identifier"
-%token <string> LETTER              "letter"
+%token <string> LETTER STRINGER_PARAM              "letter"
 %token <num> NUMBER HEX_NUMBER OCTAL_NUMBER BINARY_NUMBER
 
 /* C Keywords */
@@ -39,6 +39,12 @@
 %token SMALLER_THAN SMALLER_THAN_EQUAL EQUAL DIFFERENT ASSIGN ASSIGN_PLUS ASSIGN_MINUS ASSIGN_MULT
 %token ASSIGN_DIV ASSIGN_PERCENT ASSIGN_AND ASSIGN_OR ASSIGN_XOR ASSIGN_LEFT_SHIFT ASSIGN_RIGHT_SHIFT
 
+/* Specfific 8051 tokens*/
+%token NOINTVECTOR COMPACT DB DISABLE EJECT ASM ENDASM INTPROMOTE FLOATFUZZY INTERVAL LARGE LISTINCLUDE MAXAREGS
+%token CODE DATA IDATA BDATA XDATA PDATA SMALL
+%token BIT SBIT SFR SFR16
+%token AT ALIEN INTERRUPT PRIORITY REENTRANT TASK USING STRINGER
+
 /* Precedendia de operadores - os últimos têm maior precedência */
 %left COMMA
 %right ASSIGN ASSIGN_PLUS ASSIGN_MINUS ASSIGN_MULT ASSIGN_DIV ASSIGN_PERCENT ASSIGN_AND ASSIGN_OR ASSIGN_XOR ASSIGN_LEFT_SHIFT ASSIGN_RIGHT_SHIFT
@@ -56,8 +62,10 @@
 %left PLUSPLUS MINUSMINUS
 %right TERNARY
 
-%type <num> expression return_statement
+%nonassoc LOWER_THAN_ELSE   
+%nonassoc ELSE            
 
+%type <num> expression return_statement
 %% /* Grammar rules */
 
 program: statement_list TOK_EOF 
@@ -70,13 +78,11 @@ statement_list: statement
               | statement statement_list
               ;
 
-statement: while_loop
+statement: while_loop | if_stmt  
          | return_statement
+         | assignment
          ;
 
-while_loop: WHILE OPEN_PAREN expression CLOSE_PAREN OPEN_CURLY statement_list CLOSE_CURLY
-          { printf("Parsed while loop\n"); }
-          ;
 
 return_statement: RETURN expression SEMICOLON
                { 
@@ -85,37 +91,103 @@ return_statement: RETURN expression SEMICOLON
                }
                ;
 
-expression: expression PLUS expression 
+control_statement: statement | OPEN_CURLY statement_list CLOSE_CURLY;
+
+if_stmt:
+    IF OPEN_PAREN expression CLOSE_PAREN control_statement %prec LOWER_THAN_ELSE
+    {
+        printf("If (no else)\n");
+    }
+    | IF OPEN_PAREN expression CLOSE_PAREN control_statement ELSE control_statement
+    {
+        printf("If-else\n");
+    }
+    ;
+
+while_loop: WHILE OPEN_PAREN expression CLOSE_PAREN control_statement
+          { printf("Parsed while loop\n"); }
+          ;
+assignment: ID ASSIGN expression SEMICOLON
+            {
+                printf("Assignment: %s = %d\n", $1, $3);  // Print variable name and value
+            }
+            | ID ASSIGN_AND expression SEMICOLON
+            {
+                printf("Assignment: %s &= %d\n ", $1, $3);
+            }
+            | ID ASSIGN_DIV expression SEMICOLON
+            {
+                printf("Assignment: %s /= %d\n ", $1, $3);
+            }
+            | ID ASSIGN_LEFT_SHIFT expression SEMICOLON
+            {
+                printf("Assignment: %s <= %d\n ", $1, $3);
+            }
+            | ID ASSIGN_MINUS expression SEMICOLON
+            {
+                printf("Assignment: %s -= %d\n ", $1, $3);
+            }
+            | ID ASSIGN_MULT expression SEMICOLON
+            {
+                printf("Assignment: %s &= %d\n ", $1, $3);
+            }
+expression: expression PLUS expression
           { 
-              printf("Reducing: %d + %d\n", $1, $3);
-              $$ = $1 + $3; 
+                printf("Reducing: %d + %d\n", $1, $3);
+                $$ = $1 + $3; 
           }
           | expression SMALLER_THAN expression 
           { 
-              printf("Reducing: %d < %d\n", $1, $3);
-              $$ = ($1 < $3) ? 1 : 0; 
+                printf("Reducing: %d < %d\n", $1, $3);
+                $$ = ($1 < $3);
+          }
+          | expression SMALLER_THAN_EQUAL expression
+          {
+                printf("Reducing: %d <= %d\n",$1,$3);
+                $$ = ($1 <= $3);
+          }
+          | expression GREATER_THAN expression
+          {
+                printf("Reducing: %d > %d\n",$1,$3);
+                $$ = ($1 > $3);
+          }
+          | expression GREATER_THAN_EQUAL expression
+          {
+                printf("Reducing: %d >= %d\n",$1,$3);
+                $$ = ($1 >= $3);
+          }
+          | expression EQUAL expression
+          {
+                printf("Reducing: %d == %d\n",$1,$3);
+                $$ = ($1 == $3);
+          }
+          | expression DIFFERENT expression
+          {
+                printf("Reducing: %d != %d\n",$1,$3);
+                $$ = ($1 != $3);
           }
           | NUMBER 
           { 
-              printf("Number: %d\n", $1);
-              $$ = $1; 
+                printf("Number: %d\n", $1);
+                $$ = $1; 
           }
           | HEX_NUMBER
           { 
-              printf("Hex Number: %d\n", $1);
-              $$ = $1; 
+                printf("Hex Number: %d\n", $1);
+                $$ = $1; 
           }
           | OCTAL_NUMBER
           { 
-              printf("Octal Number: %d\n", $1);
-              $$ = $1; 
+                printf("Octal Number: %d\n", $1);
+                $$ = $1; 
           }
           | BINARY_NUMBER
           { 
-              printf("Binary Number: %d\n", $1);
-              $$ = $1; 
+                printf("Binary Number: %d\n", $1);
+                $$ = $1; 
           }
-          | ID
+          |     ID
+          
 	  { 
 	     if ($1) {
 		 printf("Identifier: %s\n", $1);
@@ -124,10 +196,9 @@ expression: expression PLUS expression
 	     }
 	     $$ = 0; // Placeholder value
 	  }
-          ;
+    ;
 
 %%
-
 void yyerror(const char *msg)
 {
     printf("Error: %s\n", msg);

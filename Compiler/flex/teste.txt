@@ -1,0 +1,32 @@
+float 24, helsek 6b7 56 for forwhile while double
+if
+!45++; teste && (3<<2)
+
+auto mod logicas
+++ -- ~ >>
+invalida 
+laranja *= 6;
+
+not_comment
+// This is a comment
+f + 5 = 4;
+
+/*
+-> pessego % 4;
+*/
+
+also_not_comment
+
+153
+0x45
+073
+0b111
+
+#include
+" '
+0je
+
+
+
+
+
