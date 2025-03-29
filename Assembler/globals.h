@@ -11,6 +11,9 @@
 #define MAX_LINE_LENGTH 255
 #define MAX_CODE_LENGTH 500
 
+// Define boolean type
+typedef enum { false, true } bool;
+
 // Define the opcodes
 
 //Opcodes for instructions
@@ -85,7 +88,9 @@
 //end of opcodes
 
 //Define IR table size
-#define MAX_IR_TABLE_SIZE 100
+#define MAX_IR_TABLE_SIZE 300
+#define MAX_HASH_TABLE_SIZE 100
+#define MAX_NAME_LABEL 20
 
 typedef struct {
     int op_type;
@@ -93,5 +98,12 @@ typedef struct {
     int op_1;
     int op_2;
 } instruction;
+
+// Define buckets registers for the hash table
+typedef struct bucketReg{
+    char label[MAX_NAME_LABEL];
+    int value;
+    struct  bucketReg *next;
+} bucketList;
 
 #endif // _GLOBALS_H
