@@ -18,13 +18,12 @@ This project is part of the Compiler Development course. It focuses on the assem
 - `lex/`: Source code containing the lexical analyzer
 
 ## To-Do List
-    ### Parser
-    - [x] Create a structure for the symbol table
-    - [x] Utils functions for searching and adding symbols into symbol table
-    - [ ] Codify step 1 and 2 of code generation
-    - [ ] Fill grammar conditions with instructions
-
-    ### Lexer
-    - [x] Define identifiable elements and test
-    - [ ] Return tokens to the parser
+### Parser
+- [x] Create a structure for the symbol table
+- [x] Utils functions for searching and adding symbols into symbol table
+- [ ] Codify step 1 and 2 of code generation
+- [ ] Fill grammar conditions with instructions
+### Lexer
+- [x] Define identifiable elements and test
+- [ ] Return tokens to the parser
 
