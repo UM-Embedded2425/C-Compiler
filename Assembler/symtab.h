@@ -27,7 +27,7 @@ void initSymbolTable();
     * @param label The label to search for
     * @return The value associated with the label, or -1 if not found
     */
-int getValue(const char *label) 
+int getValue(const char *label);
 
 
 #endif // _SYMTAB_H

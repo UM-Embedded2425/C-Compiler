@@ -87,7 +87,7 @@ void printSymbolTable() {
 int getValue(const char *label) {
     bucketList *bucket = searchBucket(label);
     if (bucket != NULL) {
-        return bucket->value
+        return bucket->value;
     }
     return -1; // Not found
 }
