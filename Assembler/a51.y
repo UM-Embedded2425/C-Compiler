@@ -1,9 +1,3 @@
-/****************************************************/
-/* File: tiny.y                                     */
-/* The TINY Yacc/Bison specification file           */
-/* Compiler Construction: Principles and Practice   */
-/* Kenneth C. Louden                                */
-/****************************************************/
 %{
 #define YYPARSER /* distinguishes Yacc output from other code files */
 
@@ -22,9 +16,9 @@ static int savedLineNo;
 %token INC DEC ADD ADDC DIV SUBB MUL DA SETB CLR CPL RR RRC RL RLC ORL XRL ANL
 
 
-%% /* Grammar for TINY */
+%% /* Grammar for as51 */
 
-stmt_seq : stmt | stmt stmt_seq;
+stmt_seq : stmt | stmt_seq stmt;
 
 expression : numeric_expression | register_name;
 
