@@ -6,11 +6,31 @@
 #include <string.h>
 #include <ctype.h>
 
-// Declare the IR table
-instruction IR[MAX_IR_TABLE_SIZE];
+// Utils to deal with the IR table
 
-// Hash table containing symbols
-bucketList *symbol_table[MAX_HASH_TABLE_SIZE];
+void add_stmt(int operation, int opcode, int op1, int op2, int op3, int n) {
+    IR[current_ir].op_type = operation;
+    IR[current_ir].op_code = opcode;
+    IR[current_ir].op_1 = op1;
+    IR[current_ir].op_2 = op2;
+    IR[current_ir].op_3 = op3;
+    IR[current_ir].N = n;
+    current_ir++;
+
+    if (operation == ORG_OP) {
+        lc = symbol_table[op1]->value;
+    }
+    else {
+        lc += n;
+    }
+
+    if (current_ir > MAX_IR_TABLE_SIZE) {
+        printf("Max code length reached. Exiting...");
+        exit(1);
+    }
+}
+
+// Utils to deal with symbol table
 
 void initSymbolTable() {
     for (int i = 0; i < MAX_HASH_TABLE_SIZE; i++) {

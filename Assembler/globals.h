@@ -6,11 +6,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_SYMBOL_TABLE_SIZE 100
-#define MAX_LABEL_SIZE 10
-#define MAX_LINE_LENGTH 255
-#define MAX_CODE_LENGTH 500
-
 // Define boolean type
 typedef enum { false, true } bool;
 
@@ -84,26 +79,6 @@ typedef enum { false, true } bool;
 #define XDATA_OP 151
 #define XSEG_OP 152
 
-
 //end of opcodes
-
-//Define IR table size
-#define MAX_IR_TABLE_SIZE 300
-#define MAX_HASH_TABLE_SIZE 100
-#define MAX_NAME_LABEL 20
-
-typedef struct {
-    int op_type;
-    int op_code;
-    int op_1;
-    int op_2;
-} instruction;
-
-// Define buckets registers for the hash table
-typedef struct bucketReg{
-    char label[MAX_NAME_LABEL];
-    int value;
-    struct  bucketReg *next;
-} bucketList;
 
 #endif // _GLOBALS_H
