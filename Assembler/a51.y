@@ -10,11 +10,9 @@ static int savedLineNo;
 
 %}
 
-%token LABEL
-
 /* Operation tokens */
 %token NOP AJMP LJMP SJMP ACALL LCALL RET RETI JMP CJNE DJNZ JC JNC JZ JNZ JB JBC JNB
-%token MOV MOVC MOVX XCH XCHL SWAP PUSH POP 
+%token MOV MOVC MOVX XCH XCHD SWAP PUSH POP 
 %token INC DEC ADD ADDC DIV SUBB MUL DA SETB CLR CPL RR RRC RL RLC ORL XRL ANL
 
 /* Register tokens */
@@ -23,7 +21,6 @@ static int savedLineNo;
 
 /* Bit Register tokens */
 %token C 
-
 
 /* Numeric type values tokens */
 %token BIN HEX DEC 
@@ -40,12 +37,13 @@ stmt : add_stmt | addc_stmt | anl_stmt | cjne_stmt | clr_stmt | cpl_stmt | da_st
      | mov_stmt | movc_stmt | movx_stmt | mul_stmt | nop_stmt | orl_stmt | pop_stmt
      | push_stmt | ret_stmt | reti_stmt | rl_stmt | rlc_stmt | rr_stmt | rrc_stmt
      | setb_stmt | sjmp_stmt | subb_stmt | swap_stmt | xch_stmt | xchd_stmt | xrl_stmt 
+     | label 
 
-add_stmt : ADD A ',' dir
+add_stmt : ADD A ',' reg
             {
               /* Add to symbol tabel */
             }
-         | ADD A ',' reg
+         | ADD A ',' dir
             {
               /* Add to symbol tabel */
             }
@@ -55,14 +53,14 @@ add_stmt : ADD A ',' dir
             }
          | ADD A ',' '#' num
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
-addc_stmt : ADDC A ',' dir
+addc_stmt : ADDC A ',' reg
             {
               /* Add to symbol tabel */
             }
-         | ADDC A ',' reg
+         | ADDC A ',' dir
             {
               /* Add to symbol tabel */
             }
@@ -72,201 +70,463 @@ addc_stmt : ADDC A ',' dir
             }
          | ADDC A ',' '#' num
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 ajmp_stmt : AJMP ID 
               {
-                /* Add to symbol table */
+                /* Add to ... */
               };
 
 anl_stmt : ANL A ',' reg
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | ANL A ',' dir 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | ANL A ',' '@' ind_reg
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | ANL A ',' '#' num
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | ANL dir ',' A
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | ANL dir ',' '#' num
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | ANL C ',' bit
             {
-              /* Add to symbol table */
+              /* Add to ... */
             } 
          | ANL C ',' '/' bit
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 cjne_stmt : CJNE A ',' dir ',' ID 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
           | CJNE A ',' '#' num ',' ID 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
            | CJNE reg ',' '#' num ',' ID
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
            | CJNE '@' ind_reg ',' '#' num ',' ID
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 clr_stmt : CLR A 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | CLR C 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | CLR bit 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 cpl_stmt : CPL A 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | CPL C 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | CPL bit 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };       
 
-da_stmt : DA A {/* Add to symbol table */}
+da_stmt : DA A {/* Add to ... */}
 
 dec_stmt : DEC A 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | DEC reg 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | DEC dir 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | DEC '@' ind_reg
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 div_stmt : DIV AB
             {
-              /* ADD TO SYMBOL table */
+              /* ADD TO ... */
             };
 
 djnz_stmt : DJNZ reg ',' ID 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
            | DJNZ dir ',' ID
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 inc_stmt : INC A 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | INC reg 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | INC dir 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | INC '@' ind_reg
             {
-              /* Add to symbol table */
+              /* Add to ... */
             }
          | INC DPTR 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 jb_stmt : JB bit ',' ID 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 jbc_stmt : JBC bit ',' ID
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 jc_stmt : JC ID 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 jmp_stmt : JMP '@' A '+' DPTR
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 jnb_stmt : JNB bit ',' ID 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 jnc_stmt : JNC ID
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 jnz_stmt : JNZ ID 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 jz_stmt : JZ ID 
             {
-              /* Add to symbol table */
+              /* Add to ... */
             };
 
 lcall_stmt : LCALL ID 
               {
-                /* Add to symbol table */
+                /* Add to ... */
               }
            | LCALL num 
               {
-                /* Add to symbol table */
+                /* Add to ... */
               };
 
 ljmp_stmt : LJMP ID 
               {
-                /* Add to symbol table */
+                /* Add to ... */
               }
            | LJMP num 
               {
-                /* Add to symbol table */
+                /* Add to ... */
               };
+
+mov_stmt : MOV A ',' reg 
+            {
+              /* Add to ... */
+            }
+         | MOV A ',' dir
+            {
+              /* Add to ... */
+            }
+         | MOV A ',' '@' ind_reg
+            {
+              /* Add to ... */
+            }
+         | MOV A ',' '#' num
+            {
+              /* Add to ... */
+            }
+         | MOV reg ',' A
+            {
+              /* Add to ... */
+            }
+         | MOV reg ',' dir
+            {
+              /* Add to ... */
+            }
+         | MOV reg ',' '#' num
+            {
+              /* Add to ... */
+            }
+         | MOV dir ',' reg 
+            {
+              /* Add to ... */
+            }
+         | MOV dir ',' dir
+            {
+              /* Add to ... */
+            }
+         | MOV dir ',' '@' ind_reg
+            {
+              /* Add to ... */
+            }
+         | MOV dir ',' '#' num
+            {
+              /* Add to ... */
+            }
+         | MOV '@' ind_reg ',' A 
+            {
+              /* Add to ... */
+            }
+         | MOV '@' ind_reg ',' dir
+            {
+              /* Add to ... */
+            }
+         | MOV '@' ind_reg ',' '#' num 
+            {
+              /* Add to ... */
+            }
+         | MOV C ',' bit
+            {
+              /* Add to ... */
+            }
+         | MOV bit ',' C
+            {
+              /* Add to ... */
+            }
+         | MOV DPTR ',' '#' num
+            {
+              /* Add to ... */
+            };
+
+movc_stmt : MOVC A ',' '@' A '+' DPTR
+              {
+                /* Add to ... */
+              }
+          | MOVC A ',' '@' A '+' PC
+              {
+                /* Add to ... */
+              };
+
+movx_stmt : MOVX A ',' '@' ind_reg
+              {
+                /* Add to ... */
+              }
+          | MOVX A ',' '@' DPTR
+              {
+                /* Add to ... */
+              }
+          | MOVX '@' ind_reg ',' A 
+              {
+                /* Add to ... */
+              }
+          | MOVX '@' DPTR ',' A
+              {
+                /* Add to ... */
+              } 
+
+mul_stmt : MUL AB
+            {
+              /* Add to ... */
+            };
+
+nop_stmt : NOP 
+            {
+              /* Add to ... */
+            };
+
+orl_stmt : ORL A ',' reg
+            {
+              /* Add to ... */
+            }
+         | ORL A ',' dir 
+            {
+              /* Add to ... */
+            }
+         | ORL A ',' '@' ind_reg
+            {
+              /* Add to ... */
+            }
+         | ORL A ',' '#' num
+            {
+              /* Add to ... */
+            }
+         | ORL dir ',' A
+            {
+              /* Add to ... */
+            }
+         | ORL dir ',' '#' num
+            {
+              /* Add to ... */
+            }
+         | ORL C ',' bit
+            {
+              /* Add to ... */
+            } 
+         | ORL C ',' '/' bit
+            {
+              /* Add to ... */
+            };
+
+pop_stmt : POP dir
+            {
+              /* Add to ... */
+            };
+
+push_stmt : PUSH dir
+              {
+              /* Add to ... */
+              };
+
+ret_stmt : RET
+            {
+              /* Add to ... */
+            };
+
+reti_stmt : RETI
+              {
+                /* Add to ... */
+              };
+
+rl_stmt : RL A
+            {
+              /* Add to ... */
+            };
+
+rlc_stmt : RLC A
+            {
+              /* Add to ... */
+            };
+
+rr_stmt : RR A
+            {
+              /* Add to ... */
+            };
+
+rrc_stmt : RRC A 
+            {
+              /* Add to ... */
+            };
+
+setb_stmt : SETB C
+              {
+              /* Add to ... */
+              }
+          | SETB BIT
+              {
+              /* Add to ... */
+              };
+
+sjmp_stmt : SJMP ID
+              {
+              /* Add to ... */
+              };
+
+subb_stmt : SUBB A ',' reg
+            {
+              /* Add to symbol tabel */
+            }
+         | SUBB A ',' dir
+            {
+              /* Add to symbol tabel */
+            }
+         | SUBB A ',' '@' ind_reg
+            {
+              /* Add to symbol tabel */
+            }
+         | SUBB A ',' '#' num
+            {
+              /* Add to ... */
+            };
+
+swap_stmt : SWAP A
+              {
+                /* Add to ... */
+              };
+
+xch_stmt : XCH A ',' reg 
+            {
+              /* Add to ... */
+            }
+         | XCH A ',' dir
+            {
+              /* Add to ... */
+            }
+         | XCH A ',' '@' ind_reg
+            {
+              /* Add to ... */
+            };
+
+xchd_stmt : XCHD A ',' '@' ind_reg
+              {
+                /* Add to ... */
+              };
+
+xrl_stmt : XRL A ',' reg
+            {
+              /* Add to ... */
+            }
+         | XRL A ',' dir 
+            {
+              /* Add to ... */
+            }
+         | XRL A ',' '@' ind_reg
+            {
+              /* Add to ... */
+            }
+         | XRL A ',' '#' num
+            {
+              /* Add to ... */
+            }
+         | XRL dir ',' A
+            {
+              /* Add to ... */
+            }
+         | XRL dir ',' '#' num
+            {
+              /* Add to ... */
+            };
+
+label: ID ':'
+        {
+          /* Add to ... */
+        };   
 
 dir : A | B | PSW | DPL | DPH | SP | P0 | P1 | TCON | TMOD | TLO | TL1 | TH0 | TH1 | SCON | SBUF | num
 
