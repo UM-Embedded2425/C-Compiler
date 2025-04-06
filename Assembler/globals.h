@@ -6,52 +6,77 @@
 #include <string.h>
 #include <ctype.h>
 
-// Define boolean type
-typedef enum { false, true } bool;
+// Define Operands
+#define A_REG_TYPE 0
+#define A_IND_REG_TYPE 1
+#define A_IMMEDIATE 2
+#define A_DIRECT 3
+#define DIRECT_A 4
+#define DIRECT_IMMEDIATE 5
+#define REG_A 6
+#define REG_DIRECT 7
+#define REG_IMMEDIATE 8
+#define DIRECT_REG 9
+#define DIRECT_DIRECT 10
+#define DIRECT_IND_REG 11
+#define IND_REG_A 12
+#define IND_REG_DIRECT 13
+#define IND_REG_IMMEDIATE 14
+#define C_BIT 15
+#define C_NBIT 16
+#define BIT_C 17
+#define A_TYPE 18
+#define REG_TYPE 19
+#define DIRECT_TYPE 20
+#define IND_REG_TYPE 21
+#define DPTR_TYPE 22
+
+
 
 // Define the opcodes
 
 //Opcodes for instructions
-#define NOP_OP 0
+#define NOP_OP 0            // YAP
 #define AJMP_OP 1
 #define LJMP_OP 2
-#define RR_OP 3
-#define INC_OP 4
+#define RR_OP 3             // YAP
+#define INC_OP 4            // YAP
 #define JBC_OP 16
 #define ACALL_OP 17
 #define LCALL_OP 18
-#define RRC_OP 19
-#define DEC_OP 20
+#define RRC_OP 19           // YAP
+#define DEC_OP 20           // YAP
 #define JB_OP 32
-#define RET_OP 34
-#define RL_OP 35
-#define ADD_OP 36
+#define RET_OP 34           // YAP
+#define RL_OP 35            // YAP
+#define ADD_OP 36           // YAP
 #define JNB_OP 48
-#define RETI_OP 50
-#define RLC_OP 51
-#define ADDC_OP 52
+#define RETI_OP 50          // YAP
+#define RLC_OP 51           // YAP
+#define ADDC_OP 52          // YAP
 #define JC_OP 64
-#define ORL_OP 66
+#define ORL_OP 66           // YAP
 #define JNC_OP 80
-#define ANL_OP 82
+#define ANL_OP 82           // YAP
 #define JZ_OP 96
-#define XRL_OP 98
+#define XRL_OP 98           // YAP
 #define JNZ_OP 112
+#define JMP_OP 115          // YAP
 #define MOV_OP 116
 #define SJMP_OP 128
 #define MOVC_OP 131
-#define DIV_OP 132
-#define SUBB_OP 148
-#define MUL_OP 164
+#define DIV_OP 132          // YAP
+#define SUBB_OP 148         // YAP
+#define MUL_OP 164          // YAP
 #define CPL_OP 178
 #define CJNE_OP 180
-#define PUSH_OP 192
+#define PUSH_OP 192         // YAP
 #define CLR_OP 194
-#define SWAP_OP 196
+#define SWAP_OP 196         // YAP
 #define XCH_OP 197
-#define POP_OP 208
+#define POP_OP 208          // YAP
 #define SETB_OP 210
-#define DA_OP 212
+#define DA_OP 212           // YAP
 #define DJNZ_OP 213
 #define XCHD_OP 214
 #define MOVX_OP 224

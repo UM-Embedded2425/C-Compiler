@@ -27,6 +27,7 @@ typedef struct {
     int op_1;
     int op_2;
     int op_3;
+    int info;
     int N;
 } instruction;
 
@@ -52,9 +53,10 @@ bucketList *symbol_table[MAX_HASH_TABLE_SIZE];
     * @param op1 The first operand
     * @param op2 The second operand
     * @param op3 The third operand
+    * @param op_type Specifies type of operand
     * @param n The number of bytes the instruction uses
     */
-void add_stmt(int operation, int opcode, int op1, int op2, int op3, int n);
+void add_stmt(int operation, int opcode, int op1, int op2, int op3, int op_type ,int n);
 
 // Symbol Table utils
 

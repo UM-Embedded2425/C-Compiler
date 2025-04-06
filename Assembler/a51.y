@@ -23,15 +23,16 @@ static int savedLineNo;
 %token C 
 
 /* Numeric type values tokens */
-%token BIN HEX DEC 
+%token BIN HEX DECIMAL 
 
 /* MISC tokens */
+%token ID AB
 
 %% /* Grammar for as51 */
 
 stmt_seq : stmt | stmt_seq stmt;
 
-stmt : add_stmt | addc_stmt | anl_stmt | cjne_stmt | clr_stmt | cpl_stmt | da_stmt
+stmt : acall_stmt | add_stmt | addc_stmt | ajmp_stmt | anl_stmt | cjne_stmt | clr_stmt | cpl_stmt | da_stmt
      | dec_stmt | div_stmt | djnz_stmt | inc_stmt | jb_stmt | jbc_stmt | jc_stmt
      | jmp_stmt | jnb_stmt | jnc_stmt | jnz_stmt | jz_stmt | lcall_stmt | ljmp_stmt
      | mov_stmt | movc_stmt | movx_stmt | mul_stmt | nop_stmt | orl_stmt | pop_stmt
@@ -39,38 +40,43 @@ stmt : add_stmt | addc_stmt | anl_stmt | cjne_stmt | clr_stmt | cpl_stmt | da_st
      | setb_stmt | sjmp_stmt | subb_stmt | swap_stmt | xch_stmt | xchd_stmt | xrl_stmt 
      | label 
 
+acall_stmt : ACALL ID 
+              {
+                /* Add to ... */
+              };
+
 add_stmt : ADD A ',' reg
             {
-              /* Add to symbol tabel */
+              add_stmt($1, ADD_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
          | ADD A ',' dir
             {
-              /* Add to symbol tabel */
+              add_stmt($1, ADD_OP, $2, $4, NULL, A_DIRECT, 3);
             }
          | ADD A ',' '@' ind_reg
             {
-              /* Add to symbol tabel */
+              add_stmt($1, ADD_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
          | ADD A ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, ADD_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             };
 
 addc_stmt : ADDC A ',' reg
             {
-              /* Add to symbol tabel */
+              add_stmt($1, ADDC_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
          | ADDC A ',' dir
             {
-              /* Add to symbol tabel */
+              add_stmt($1, ADDC_OP, $2, $4, NULL, A_DIRECT, 3);
             }
          | ADDC A ',' '@' ind_reg
             {
-              /* Add to symbol tabel */
+              add_stmt($1, ADDC_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
          | ADDC A ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, ADDC_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             };
 
 ajmp_stmt : AJMP ID 
@@ -80,27 +86,27 @@ ajmp_stmt : AJMP ID
 
 anl_stmt : ANL A ',' reg
             {
-              /* Add to ... */
+              add_stmt($1, ANL_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
          | ANL A ',' dir 
             {
-              /* Add to ... */
+              add_stmt($1, ANL_OP, $2, $4, NULL, A_DIRECT, 3);
             }
          | ANL A ',' '@' ind_reg
             {
-              /* Add to ... */
+              add_stmt($1, ANL_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
          | ANL A ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, ANL_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             }
          | ANL dir ',' A
             {
-              /* Add to ... */
+              add_stmt($1, ANL_OP, $2, $4, NULL, DIRECT_A, 3);
             }
          | ANL dir ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, ANL_OP, $2, $4, NULL, DIRECT_IMMEADIATE, 3);
             }
          | ANL C ',' bit
             {
@@ -130,7 +136,7 @@ cjne_stmt : CJNE A ',' dir ',' ID
 
 clr_stmt : CLR A 
             {
-              /* Add to ... */
+              /* Add to ... */ 
             }
          | CLR C 
             {
@@ -143,7 +149,7 @@ clr_stmt : CLR A
 
 cpl_stmt : CPL A 
             {
-              /* Add to ... */
+              /* Add to ... */ 
             }
          | CPL C 
             {
@@ -154,28 +160,31 @@ cpl_stmt : CPL A
               /* Add to ... */
             };       
 
-da_stmt : DA A {/* Add to ... */}
+da_stmt : DA A 
+           {
+            add_stmt($1, DA_OP, $2, NULL, NULL, A_TYPE, 3); 
+           }
 
 dec_stmt : DEC A 
             {
-              /* Add to ... */
+              add_stmt($1, DEC_OP, $2, NULL, NULL, A_TYPE, 3);
             }
          | DEC reg 
             {
-              /* Add to ... */
+              add_stmt($1, DEC_OP, $2, NULL, NULL, REG_TYPE, 3);
             }
          | DEC dir 
             {
-              /* Add to ... */
+              add_stmt($1, DEC_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
             }
          | DEC '@' ind_reg
             {
-              /* Add to ... */
+              add_stmt($1, DEC_OP, $2, NULL, NULL, IND_REG_TYPE, 3);
             };
 
 div_stmt : DIV AB
             {
-              /* ADD TO ... */
+              add_stmt($1, DIV_OP, $2, NULL, NULL, A_TYPE, 3);
             };
 
 djnz_stmt : DJNZ reg ',' ID 
@@ -189,19 +198,19 @@ djnz_stmt : DJNZ reg ',' ID
 
 inc_stmt : INC A 
             {
-              /* Add to ... */
+              add_stmt($1, INC_OP, $2, NULL, NULL, A_TYPE, 3);
             }
          | INC reg 
             {
-              /* Add to ... */
+              add_stmt($1, INC_OP, $2, NULL, NULL, REG_TYPE, 3);
             }
          | INC dir 
             {
-              /* Add to ... */
+              add_stmt($1, INC_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
             }
          | INC '@' ind_reg
             {
-              /* Add to ... */
+              add_stmt($1, INC_OP, $3, NULL, NULL, IND_REG_TYPE, 3);
             }
          | INC DPTR 
             {
@@ -225,7 +234,7 @@ jc_stmt : JC ID
 
 jmp_stmt : JMP '@' A '+' DPTR
             {
-              /* Add to ... */
+              add_stmt($1, JMP_OP, $3, $5, NULL, A_DIRECT, 3);
             };
 
 jnb_stmt : JNB bit ',' ID 
@@ -268,59 +277,63 @@ ljmp_stmt : LJMP ID
 
 mov_stmt : MOV A ',' reg 
             {
-              /* Add to ... */
+              add_stmt($1, 0xe0, $2, $4, NULL, A_REG_TYPE, 3);
             }
          | MOV A ',' dir
             {
-              /* Add to ... */
+              add_stmt($1, 0xe0, $2, $4, NULL, A_DIRECT, 3);
             }
          | MOV A ',' '@' ind_reg
             {
-              /* Add to ... */
+              add_stmt($1, 0xe0, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
          | MOV A ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, 0x70, $2, $5, NULL, A_IMMEDIATE, 3);
             }
          | MOV reg ',' A
             {
-              /* Add to ... */
+              add_stmt($1, 0xf0, $2, $4, NULL, REG_A, 3);
             }
          | MOV reg ',' dir
             {
-              /* Add to ... */
+              add_stmt($1, 0xa0, $2, $4, NULL, REG_DIRECT, 3);
             }
          | MOV reg ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, 0x70, $2, $5, NULL, REG_IMMEDIATE, 3);
+            }
+         | MOV dir ',' A 
+            {
+              add_stmt($1, 0xf0, $2, $4, NULL, DIRECT_A, 3);
             }
          | MOV dir ',' reg 
             {
-              /* Add to ... */
+              add_stmt($1, 0x80, $2, $4, NULL, DIRECT_REG, 3);
             }
          | MOV dir ',' dir
             {
-              /* Add to ... */
+              add_stmt($1, 0x80, $2, $4, NULL, DIRECT_DIRECT, 3);
             }
          | MOV dir ',' '@' ind_reg
             {
-              /* Add to ... */
+              add_stmt($1, 0x80, $2, $5, NULL, DIRECT_IND_REG, 3);
             }
          | MOV dir ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, 0x70, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             }
          | MOV '@' ind_reg ',' A 
             {
-              /* Add to ... */
+              add_stmt($1, 0xf0, $3, $5, NULL, IND_REG_A, 3);
             }
          | MOV '@' ind_reg ',' dir
             {
-              /* Add to ... */
+              add_stmt($1, 0xa0, $3, $5, NULL, IND_REG_DIRECT, 3);
             }
          | MOV '@' ind_reg ',' '#' num 
             {
-              /* Add to ... */
+              add_stmt($1, 0x70, $3, $6, NULL, IND_REG_IMMEDIATE, 3);
             }
          | MOV C ',' bit
             {
@@ -363,37 +376,37 @@ movx_stmt : MOVX A ',' '@' ind_reg
 
 mul_stmt : MUL AB
             {
-              /* Add to ... */
+              add_stmt($1, MUL_OP, $2, NULL, NULL, A_TYPE, 3);
             };
 
 nop_stmt : NOP 
             {
-              /* Add to ... */
+              add_stmt($1, NOP_OP, NULL, NULL, NULL, NULL, 3);
             };
 
 orl_stmt : ORL A ',' reg
             {
-              /* Add to ... */
+              add_stmt($1, ORL_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
          | ORL A ',' dir 
             {
-              /* Add to ... */
+              add_stmt($1, ORL_OP, $2, $4, NULL, A_DIRECT, 3);
             }
          | ORL A ',' '@' ind_reg
             {
-              /* Add to ... */
+              add_stmt($1, ORL_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
          | ORL A ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, ORL_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             }
          | ORL dir ',' A
             {
-              /* Add to ... */
+              add_stmt($1, ORL_OP, $2, $4, NULL, DIRECT_A, 3);
             }
          | ORL dir ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, ORL_OP, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             }
          | ORL C ',' bit
             {
@@ -406,49 +419,49 @@ orl_stmt : ORL A ',' reg
 
 pop_stmt : POP dir
             {
-              /* Add to ... */
+              add_stmt($1, POP_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
             };
 
 push_stmt : PUSH dir
               {
-              /* Add to ... */
+                add_stmt($1, PUSH_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
               };
 
 ret_stmt : RET
             {
-              /* Add to ... */
+              add_stmt($1, RET_OP, NULL, NULL, NULL, NULL, 3); 
             };
 
 reti_stmt : RETI
               {
-                /* Add to ... */
+                add_stmt($1, RETI_OP, NULL, NULL, NULL, NULL, 3); 
               };
 
 rl_stmt : RL A
             {
-              /* Add to ... */
+              add_stmt($1, RL_OP, $2, NULL, NULL, A_TYPE, 3); 
             };
 
 rlc_stmt : RLC A
             {
-              /* Add to ... */
+              add_stmt($1, RLC_OP, $2, NULL, NULL, A_TYPE, 3); 
             };
 
 rr_stmt : RR A
             {
-              /* Add to ... */
+              add_stmt($1, RR_OP, $2, NULL, NULL, A_TYPE, 3); 
             };
 
 rrc_stmt : RRC A 
             {
-              /* Add to ... */
+              add_stmt($1, RRC_OP, $2, NULL, NULL, A_TYPE, 3); 
             };
 
 setb_stmt : SETB C
               {
               /* Add to ... */
               }
-          | SETB BIT
+          | SETB bit
               {
               /* Add to ... */
               };
@@ -460,24 +473,24 @@ sjmp_stmt : SJMP ID
 
 subb_stmt : SUBB A ',' reg
             {
-              /* Add to symbol tabel */
+              add_stmt($1, SUBB_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
          | SUBB A ',' dir
             {
-              /* Add to symbol tabel */
+              add_stmt($1, SUBB_OP, $2, $4, NULL, A_DIRECT, 3);
             }
          | SUBB A ',' '@' ind_reg
             {
-              /* Add to symbol tabel */
+              add_stmt($1, SUBB_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
          | SUBB A ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, SUBB_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             };
 
 swap_stmt : SWAP A
               {
-                /* Add to ... */
+                add_stmt($1, SWAP_OP, $2, NULL, NULL, A_TYPE, 3); 
               };
 
 xch_stmt : XCH A ',' reg 
@@ -500,27 +513,27 @@ xchd_stmt : XCHD A ',' '@' ind_reg
 
 xrl_stmt : XRL A ',' reg
             {
-              /* Add to ... */
+              add_stmt($1, XRL_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
          | XRL A ',' dir 
             {
-              /* Add to ... */
+              add_stmt($1, XRL_OP, $2, $4, NULL, A_DIRECT, 3);
             }
          | XRL A ',' '@' ind_reg
             {
-              /* Add to ... */
+              add_stmt($1, XRL_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
          | XRL A ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, XRL_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             }
          | XRL dir ',' A
             {
-              /* Add to ... */
+              add_stmt($1, XRL_OP, $2, $4, NULL, DIRECT_A, 3);
             }
          | XRL dir ',' '#' num
             {
-              /* Add to ... */
+              add_stmt($1, XRL_OP, $2, $5, NULL, DIRECT_IMMEADIATE, 3);
             };
 
 label: ID ':'
@@ -536,7 +549,7 @@ reg : R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7
 
 ind_reg : R0 | R1
 
-num : BIN | HEX | DEC
+num : BIN | HEX | DECIMAL
 
 %%
 

@@ -8,12 +8,13 @@
 
 // Utils to deal with the IR table
 
-void add_stmt(int operation, int opcode, int op1, int op2, int op3, int n) {
+void add_stmt(int operation, int opcode, int op1, int op2, int op3, int op_type ,int n) {
     IR[current_ir].op_type = operation;
     IR[current_ir].op_code = opcode;
     IR[current_ir].op_1 = op1;
     IR[current_ir].op_2 = op2;
     IR[current_ir].op_3 = op3;
+    IR[current_ir].info = op_type;
     IR[current_ir].N = n;
     current_ir++;
 
@@ -25,7 +26,7 @@ void add_stmt(int operation, int opcode, int op1, int op2, int op3, int n) {
     }
 
     if (current_ir > MAX_IR_TABLE_SIZE) {
-        printf("Max code length reached. Exiting...");
+        printf("Max IR table size reached. Exiting...");
         exit(1);
     }
 }
@@ -57,7 +58,7 @@ void insertSymbol(const char *label, int value) {
     else
     {
         bucketList *current = symbol_table[index];
-        bool done = 0;
+        int done = 0;
         for (; current->next != NULL; current = current->next) //Search through bucket
         {
             if (strcmp(current->next->label, label) == 0) //Same symbol
