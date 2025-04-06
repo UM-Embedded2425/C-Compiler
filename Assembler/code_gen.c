@@ -1,10 +1,9 @@
-#include <stdio.h>
 #include "globals.h"
 #include "utils.h"
 #include "symtab.h"
 #include "a51.tab.c"
 
-int main() {
+void codeGen() {
     int code, reg, i = 0;
     while (i < current_ir) {
         switch(IR[i].op_type) {
