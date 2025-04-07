@@ -6,6 +6,16 @@
 #include <string.h>
 #include <ctype.h>
 
+// define boolean variables
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 // Define Operands
 #define A_REG_TYPE 0
 #define A_IND_REG_TYPE 1

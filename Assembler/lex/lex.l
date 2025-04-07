@@ -1,11 +1,10 @@
-union{
-
-}
 %{
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include "globals.h"
+#include "a51.tab.h"
 %}
 
 
@@ -292,7 +291,7 @@ _POP             "POP"
 {_AB_REG}      { printf("REGISTER: A\n REGISTER: B\n");
 		return AB; }
 {_ACC_REG}      { printf("REGISTER: ACC\n");
-		return ACC; }
+		return A; }
 {_B_REG}        { printf("REGISTER: B\n");
 		return B; }
 {_C_REG}        { printf("REGISTER: C\n");
