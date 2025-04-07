@@ -6,11 +6,18 @@
 #include <string.h>
 #include <ctype.h>
 
-// define boolean variables
+// Define boolean variables
 
 #ifndef TRUE
 #define TRUE 1
 #endif
+
+// Define shared Lexer-Parser types
+
+typedef union data {
+    int num;
+    char* str;
+} type;
 
 #ifndef FALSE
 #define FALSE 0

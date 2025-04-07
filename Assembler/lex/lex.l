@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include <string.h>
 #include "globals.h"
+#define YYSTYPE type
+
 #include "a51.tab.h"
 %}
 

@@ -8,21 +8,16 @@
 static int yylex(void);
 static int savedLineNo;
 
-%union {
-  int num;
-  char *str;
-}
-
 %}
 
 
 /* Operation tokens */
 %token NOP AJMP LJMP SJMP ACALL LCALL RET RETI JMP CJNE DJNZ JC JNC JZ JNZ JB JBC JNB
-%token MOV MOVC MOVX XCH XCHD SWAP PUSH POP 
+%token MOV MOVC MOVX XCH XCHD XCHL SWAP PUSH POP 
 %token INC DEC ADD ADDC DIV SUBB MUL DA SETB CLR CPL RR RRC RL RLC ORL XRL ANL
 
 /* Register tokens */
-%token A B PSW DPTR DPL DPH SP P0 P1 TCON TMOD TLO TL1 TH0 TH1 SCON SBUF PC IE IP
+%token A B PSW DPTR DPL DPH SP P0 P1 TCON TMOD TLO TL1 TH0 TH1 SCON SBUF PC IE IP GPIO_PORT GPIO_PIN
 %token R0 R1 R2 R3 R4 R5 R6 R7
 
 /* Bit Register tokens */
@@ -33,6 +28,8 @@ static int savedLineNo;
 
 /* MISC tokens */
 %token IDENTIFIER AB
+%token HASH_TAG OP_CLOSE_PAREN OP_OPEN_PAREN
+
 
 %% /* Grammar for as51 */
 
@@ -114,7 +111,7 @@ anl_stmt : ANL A ',' reg
             }
          | ANL dir ',' '#' NUMBER
             {
-              add_stmt($1, ANL_OP, $2, $4, NULL, DIRECT_IMMEADIATE, 3);
+              add_stmt($1, ANL_OP, $2, $4, NULL, DIRECT_IMMEDIATE, 3);
             }
          | ANL C ',' bit
             {
@@ -202,11 +199,11 @@ div_stmt : DIV AB
 djnz_stmt : DJNZ reg ',' IDENTIFIER
             {
               insertSymbol($4, lc);
-              add_stmt($1, DJNZ_OP, $2, $3, REG_TYPE, 3);
+              add_stmt($1, DJNZ_OP, $2, $3, NULL, REG_TYPE, 3);
             }
            | DJNZ dir ',' IDENTIFIER
             {
-              add_stmt($1, DJNZ_OP, $2, $3, DIRECT_TYPE, 3);
+              add_stmt($1, DJNZ_OP, $2, $3, NULL, DIRECT_TYPE, 3);
             };
 
 inc_stmt : INC A 
@@ -556,7 +553,7 @@ xrl_stmt : XRL A ',' reg
             }
          | XRL dir ',' '#' NUMBER
             {
-              add_stmt($1, XRL_OP, $2, $5, NULL, DIRECT_IMMEADIATE, 3);
+              add_stmt($1, XRL_OP, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             };
 
 label: IDENTIFIER':'
@@ -575,10 +572,7 @@ ind_reg : R0 | R1
 %%
 
 int yyerror(char * message)
-{ fprintf(listing,"Syntax error at line %d: %s\n",lineno,message);
-  fprintf(listing,"Current token: ");
-  printToken(yychar,tokenString);
-  Error = TRUE;
+{ printf("Syntax error: %s\n",message);
   return 0;
 }
 
