@@ -42,7 +42,8 @@ stmt : acall_stmt | add_stmt | addc_stmt | ajmp_stmt | anl_stmt | cjne_stmt | cl
 
 acall_stmt : ACALL ID 
               {
-                /* Add to ... */
+                insertSymbol($2, lc);
+                add_stmt($1, ACALL_OP, $2, NULL, NULL, ABSOLUTE, 3);
               };
 
 add_stmt : ADD A ',' reg
@@ -81,7 +82,8 @@ addc_stmt : ADDC A ',' reg
 
 ajmp_stmt : AJMP ID 
               {
-                /* Add to ... */
+                insertSymbol($2, lc);
+                add_stmt($1, AJMP_OP, $2, NULL, NULL, ABSOLUTE, 3);
               };
 
 anl_stmt : ANL A ',' reg
@@ -119,45 +121,49 @@ anl_stmt : ANL A ',' reg
 
 cjne_stmt : CJNE A ',' dir ',' ID 
             {
-              /* Add to ... */
+              insertSymbol($6, lc); // ?
+              add_stmt($1, CJNE_OP, $2, $4, $6, A_DIRECT, 3);
             }
           | CJNE A ',' '#' num ',' ID 
             {
-              /* Add to ... */
+              insertSymbol($7, lc); // ?
+              add_stmt($1, CJNE_OP, $2, $5, $7, A_IMMEDIATE, 3);
             }
            | CJNE reg ',' '#' num ',' ID
             {
-              /* Add to ... */
+              insertSymbol($7, lc); // ?
+              add_stmt($1, CJNE_OP, $2, $5, $7, REG_IMMEDIATE, 3);
             }
            | CJNE '@' ind_reg ',' '#' num ',' ID
             {
-              /* Add to ... */
+              insertSymbol($8, lc); // ?
+              add_stmt($1, CJNE_OP, $3, $6, $8, IND_REG_IMMEDIATE, 3);
             };
 
 clr_stmt : CLR A 
             {
-              /* Add to ... */ 
+              add_stmt($1, 0xe4, $2, NULL, NULL, A_TYPE, 3);
             }
          | CLR C 
             {
-              /* Add to ... */
+              add_stmt($1, CLR_OP, $2, NULL, NULL, C_TYPE, 3);
             }
          | CLR bit 
             {
-              /* Add to ... */
+              add_stmt($1, CLR_OP, $2, NULL, NULL, BIT_TYPE, 3);
             };
 
 cpl_stmt : CPL A 
             {
-              /* Add to ... */ 
+              add_stmt($1, 0xf4, $2, NULL, NULL, A_TYPE, 3);
             }
          | CPL C 
             {
-              /* Add to ... */
+              add_stmt($1, CLR_OP, $2, NULL, NULL, C_TYPE, 3);
             }
          | CPL bit 
             {
-              /* Add to ... */
+              add_stmt($1, CLR_OP, $2, NULL, NULL, BIT_TYPE, 3);
             };       
 
 da_stmt : DA A 
@@ -189,11 +195,12 @@ div_stmt : DIV AB
 
 djnz_stmt : DJNZ reg ',' ID 
             {
-              /* Add to ... */
+              insertSymbol($4, lc);
+              add_stmt($1, DJNZ_OP, $2, $3, REG_TYPE, 3);
             }
            | DJNZ dir ',' ID
             {
-              /* Add to ... */
+              add_stmt($1, DJNZ_OP, $2, $3, DIRECT_TYPE, 3);
             };
 
 inc_stmt : INC A 
@@ -219,17 +226,20 @@ inc_stmt : INC A
 
 jb_stmt : JB bit ',' ID 
             {
-              /* Add to ... */
+              insertSymbol($4, lc);
+              add_stmt($1, JB_OP, $2, $4, NULL, BIT_TYPE, 3);
             };
 
 jbc_stmt : JBC bit ',' ID
             {
-              /* Add to ... */
+              insertSymbol($4, lc);
+              add_stmt($1, JBC_OP, $2, $4, NULL, BIT_TYPE, 3);
             };
 
 jc_stmt : JC ID 
             {
-              /* Add to ... */
+              insertSymbol($2, lc);
+              add_stmt($1, JC_OP, $2, NULL, NULL, RELATIVE, 3);
             };
 
 jmp_stmt : JMP '@' A '+' DPTR
@@ -239,40 +249,46 @@ jmp_stmt : JMP '@' A '+' DPTR
 
 jnb_stmt : JNB bit ',' ID 
             {
-              /* Add to ... */
+              insertSymbol($4, lc);
+              add_stmt($1, JNB_OP, $2, $4, NULL, BIT_TYPE, 3);
             };
 
 jnc_stmt : JNC ID
             {
-              /* Add to ... */
+              insertSymbol($2, lc);
+              add_stmt($1, JNC_OP, $2, NULL, NULL, RELATIVE, 3);
             };
 
 jnz_stmt : JNZ ID 
             {
-              /* Add to ... */
+              insertSymbol($2, lc);
+              add_stmt($1, JNZ_OP, $2, NULL, NULL, RELATIVE, 3);
             };
 
 jz_stmt : JZ ID 
             {
-              /* Add to ... */
+              insertSymbol($2, lc);
+              add_stmt($1, JZ_OP, $2, NULL, NULL, RELATIVE, 3);
             };
 
 lcall_stmt : LCALL ID 
               {
-                /* Add to ... */
+                insertSymbol($2, lc);
+                add_stmt($1, LCALL_OP, $2, NULL, NULL, ABSOLUTE, 3);
               }
            | LCALL num 
               {
-                /* Add to ... */
+                add_stmt($1, LCALL_OP, $2, NULL, NULL, ABSOLUTE, 3);
               };
 
 ljmp_stmt : LJMP ID 
               {
-                /* Add to ... */
+                insertSymbol($2, lc);
+                add_stmt($1, LJMP_OP, $2, NULL, NULL, ABSOLUTE, 3);
               }
            | LJMP num 
               {
-                /* Add to ... */
+                add_stmt($1, LJMP_OP, $2, NULL, NULL, ABSOLUTE, 3);
               };
 
 mov_stmt : MOV A ',' reg 
@@ -459,16 +475,17 @@ rrc_stmt : RRC A
 
 setb_stmt : SETB C
               {
-              /* Add to ... */
+                add_stmt($1, SETB_OP, $2, NULL, NULL, C_TYPE, 3);
               }
           | SETB bit
               {
-              /* Add to ... */
+                add_stmt($1, SETB_OP, $2, NULL, NULL, BIT_TYPE, 3);
               };
 
 sjmp_stmt : SJMP ID
               {
-              /* Add to ... */
+                insertSymbol($2, lc);
+                add_stmt($1, SJMP_OP, $2, NULL, NULL, RELATIVE, 3);
               };
 
 subb_stmt : SUBB A ',' reg
@@ -495,20 +512,20 @@ swap_stmt : SWAP A
 
 xch_stmt : XCH A ',' reg 
             {
-              /* Add to ... */
+              add_stmt($1, XCH_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
          | XCH A ',' dir
             {
-              /* Add to ... */
+              add_stmt($1, XCH_OP, $2, $4, NULL, A_DIRECT, 3);
             }
          | XCH A ',' '@' ind_reg
             {
-              /* Add to ... */
+              add_stmt($1, XCH_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             };
 
 xchd_stmt : XCHD A ',' '@' ind_reg
               {
-                /* Add to ... */
+                add_stmt($1, XCHD_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
               };
 
 xrl_stmt : XRL A ',' reg
@@ -538,7 +555,7 @@ xrl_stmt : XRL A ',' reg
 
 label: ID ':'
         {
-          /* Add to ... */
+          insertSymbol($1, lc);
         };   
 
 dir : A | B | PSW | DPL | DPH | SP | P0 | P1 | TCON | TMOD | TLO | TL1 | TH0 | TH1 | SCON | SBUF | num

@@ -7,6 +7,14 @@ void codeGen() {
     int code, reg, i = 0;
     while (i < current_ir) {
         switch(IR[i].op_type) {
+            case ACALL:
+            case AJMP:
+                code = 0;
+                code |= (0xff & IR[i].op_code) << 16;
+                code |= (0x700 & IR[i].op_1) << 21;
+                code |= (0x0ff & IR[i].op_1) << 8; 
+                break;
+
             case SUBB:
             case ADDC:
             case ADD: 

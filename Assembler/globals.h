@@ -30,19 +30,23 @@
 #define DIRECT_TYPE 20
 #define IND_REG_TYPE 21
 #define DPTR_TYPE 22
+#define ABSOLUTE 23
+#define RELATIVE 24
+#define C_TYPE 25
+#define BIT_TYPE 26
 
-
+// end of operands
 
 // Define the opcodes
 
 //Opcodes for instructions
 #define NOP_OP 0            // YAP
-#define AJMP_OP 1
-#define LJMP_OP 2
+#define AJMP_OP 1           // YAP
+#define LJMP_OP 2           
 #define RR_OP 3             // YAP
 #define INC_OP 4            // YAP
 #define JBC_OP 16
-#define ACALL_OP 17
+#define ACALL_OP 17         // YAP
 #define LCALL_OP 18
 #define RRC_OP 19           // YAP
 #define DEC_OP 20           // YAP

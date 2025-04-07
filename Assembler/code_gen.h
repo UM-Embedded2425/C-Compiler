@@ -6,6 +6,6 @@
 /* Function to generate the code for the 8051 microcontroller
     * 
     */
-   void codeGen();
+void codeGen();
 
-#endif
+#endif // _CODE_GEN_H
