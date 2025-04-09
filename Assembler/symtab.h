@@ -26,7 +26,8 @@ typedef struct {
 } instruction;
 
 // Hash table containing symbols
-extern instruction IR[MAX_IR_TABLE_SIZE];
+extern instruction *IR;
+extern int size;
 
 // Define buckets registers for the hash table
 typedef struct bucketReg{

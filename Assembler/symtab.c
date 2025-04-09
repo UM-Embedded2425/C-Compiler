@@ -3,7 +3,8 @@
 #include "globals.h"
 
 // Declare the IR table
-instruction IR[MAX_IR_TABLE_SIZE];
+instruction *IR;
+int size;
 
 // Hash table containing symbols
 bucketList *symbol_table[MAX_HASH_TABLE_SIZE];
@@ -14,8 +15,11 @@ int current_ir;
 int lc;
 
 void initIR() {
+
+    size = MAX_CODE_LENGTH;
+    IR = malloc(sizeof(instruction)*size);
     int i;
-    for (i=0; i < MAX_IR_TABLE_SIZE; i++) {
+    for (i=0; i < size; i++) {
         IR[i].op_type = 0;
         IR[i].op_code = 0;
         IR[i].op_1 = 0;
@@ -30,6 +34,12 @@ void initIR() {
 }
 
 void add_stmt(int operation, int opcode, int op1, int op2, int *op3, int op_type ,int n) {
+
+    if (current_ir >= size) {
+        size *= 2;
+        IR = realloc(IR, size*sizeof(instruction));
+    } 
+    printf("%d\n", 1);
     IR[current_ir].op_type = operation;
     IR[current_ir].op_code = opcode;
     IR[current_ir].op_1 = op1;
@@ -38,17 +48,12 @@ void add_stmt(int operation, int opcode, int op1, int op2, int *op3, int op_type
     IR[current_ir].info = op_type;
     IR[current_ir].N = n;
     current_ir++;
-
+    printf("%d\n", 2);
     if (operation == ORG_OP) {
         lc = symbol_table[op1]->value;
     }
     else {
         lc += n;
-    }
-
-    if (current_ir > MAX_IR_TABLE_SIZE) {
-        printf("Max IR table size reached. Exiting...");
-        exit(1);
     }
 }
 
