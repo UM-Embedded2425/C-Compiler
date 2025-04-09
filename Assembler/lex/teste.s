@@ -1,6 +1,0 @@
-ORG 0x0000  ;MOV B
-MOV A, #10
-ADD A, @R0
-INC A
-MOV R0, A
-MOV A, #20

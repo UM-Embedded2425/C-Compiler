@@ -5,30 +5,40 @@
 #include "utils.h"
 #include "symtab.h"
 
+
 static int yylex(void);
+int yyerror(char * message);
 static int savedLineNo;
 
 %}
 
+%union {
+    bucketList *bucket;
+    int num;
+    // other types you might need
+}
 
 /* Operation tokens */
-%token NOP AJMP LJMP SJMP ACALL LCALL RET RETI JMP CJNE DJNZ JC JNC JZ JNZ JB JBC JNB
-%token MOV MOVC MOVX XCH XCHD XCHL SWAP PUSH POP 
-%token INC DEC ADD ADDC DIV SUBB MUL DA SETB CLR CPL RR RRC RL RLC ORL XRL ANL
+%token <num> NOP AJMP LJMP SJMP ACALL LCALL RET RETI JMP CJNE DJNZ JC JNC JZ JNZ JB JBC JNB
+%token <num> MOV MOVC MOVX XCH XCHD XCHL SWAP PUSH POP 
+%token <num> INC DEC ADD ADDC DIV SUBB MUL DA SETB CLR CPL RR RRC RL RLC ORL XRL ANL
 
 /* Register tokens */
-%token A B PSW DPTR DPL DPH SP P0 P1 TCON TMOD TLO TL1 TH0 TH1 SCON SBUF PC IE IP GPIO_PORT GPIO_PIN
-%token R0 R1 R2 R3 R4 R5 R6 R7
+%token <num> ACC A B PSW DPTR DPL DPH SP P0 P1 TCON TMOD TL0 TL1 TH0 TH1 SCON SBUF PC IE IP GPIO_PORT GPIO_PIN
+%token <num> REG
 
 /* Bit Register tokens */
-%token C 
+%token <num> C 
 
 /* Numeric type values tokens */
-%token NUMBER
+%token <num> NUMBER
 
 /* MISC tokens */
-%token IDENTIFIER AB
-%token HASH_TAG OP_CLOSE_PAREN OP_OPEN_PAREN
+%token <bucket> IDENTIFIER 
+%token <num> AB
+%token COMMA HASH_TAG TWO_DOTS AT_SIGN OP_CLOSE_PAREN OP_OPEN_PAREN
+
+%type <num> dir
 
 
 %% /* Grammar for as51 */
@@ -43,101 +53,99 @@ stmt : acall_stmt | add_stmt | addc_stmt | ajmp_stmt | anl_stmt | cjne_stmt | cl
      | setb_stmt | sjmp_stmt | subb_stmt | swap_stmt | xch_stmt | xchd_stmt | xrl_stmt 
      | label 
 
-acall_stmt : ACALL IDENTIFIER
+ajmp_stmt : AJMP IDENTIFIER
               {
-                insertSymbol($2, lc);
-                add_stmt($1, ACALL_OP, $2, NULL, NULL, ABSOLUTE, 3);
-              };
+                add_stmt(AJMP_OP, AJMP_OP, 0, 0, &($2->value), A_REG_TYPE, 3);
+              }
 
-add_stmt : ADD A ',' reg
+add_stmt : ADD A COMMA REG
             {
-              add_stmt($1, ADD_OP, $2, $4, NULL, A_REG_TYPE, 3);
+              add_stmt(ADD_OP, ADD_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
-         | ADD A ',' dir
+         | ADD A COMMA dir
             {
-              add_stmt($1, ADD_OP, $2, $4, NULL, A_DIRECT, 3);
+              add_stmt(ADD_OP, ADD_OP, $2, $4, NULL, A_DIRECT, 3);
             }
-         | ADD A ',' '@' ind_reg
+         | ADD A COMMA AT_SIGN REG
             {
-              add_stmt($1, ADD_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
+              add_stmt(ADD_OP, ADD_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | ADD A ',' '#' NUMBER
+         | ADD A COMMA HASH_TAG NUMBER
             {
-              add_stmt($1, ADD_OP, $2, $5, NULL, A_IMMEDIATE, 3);
-            };
+              add_stmt(ADD_OP, ADD_OP, $2, $5, NULL, A_IMMEDIATE, 3);
+            }; 
 
-addc_stmt : ADDC A ',' reg
+addc_stmt : ADDC A COMMA reg
             {
               add_stmt($1, ADDC_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
-         | ADDC A ',' dir
+         | ADDC A COMMA dir
             {
               add_stmt($1, ADDC_OP, $2, $4, NULL, A_DIRECT, 3);
             }
-         | ADDC A ',' '@' ind_reg
+         | ADDC A COMMA AT_SIGN ind_reg
             {
               add_stmt($1, ADDC_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | ADDC A ',' '#' NUMBER
+         | ADDC A COMMA '#' NUMBER
             {
               add_stmt($1, ADDC_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             };
 
-ajmp_stmt : AJMP IDENTIFIER
+acall_stmt : ACALL IDENTIFIER
               {
-                insertSymbol($2, lc);
-                add_stmt($1, AJMP_OP, $2, NULL, NULL, ABSOLUTE, 3);
+                add_stmt(ACALL_OP, ACALL_OP, no_op, $2, NULL, ABSOLUTE, 3);
               };
 
-anl_stmt : ANL A ',' reg
+anl_stmt : ANL A COMMA reg
             {
               add_stmt($1, ANL_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
-         | ANL A ',' dir 
+         | ANL A COMMA dir 
             {
               add_stmt($1, ANL_OP, $2, $4, NULL, A_DIRECT, 3);
             }
-         | ANL A ',' '@' ind_reg
+         | ANL A COMMA AT_SIGN ind_reg
             {
               add_stmt($1, ANL_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | ANL A ',' '#' NUMBER
+         | ANL A COMMA '#' NUMBER
             {
               add_stmt($1, ANL_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             }
-         | ANL dir ',' A
+         | ANL dir COMMA A
             {
               add_stmt($1, ANL_OP, $2, $4, NULL, DIRECT_A, 3);
             }
-         | ANL dir ',' '#' NUMBER
+         | ANL dir COMMA '#' NUMBER
             {
               add_stmt($1, ANL_OP, $2, $4, NULL, DIRECT_IMMEDIATE, 3);
             }
-         | ANL C ',' bit
+         | ANL C COMMA bit
             {
               /* Add to ... */
             } 
-         | ANL C ',' '/' bit
+         | ANL C COMMA '/' bit
             {
               /* Add to ... */
             };
 
-cjne_stmt : CJNE A ',' dir ',' IDENTIFIER
+cjne_stmt : CJNE A COMMA dir COMMA IDENTIFIER
             {
               insertSymbol($6, lc); // ?
               add_stmt($1, CJNE_OP, $2, $4, $6, A_DIRECT, 3);
             }
-          | CJNE A ',' '#' NUMBER ',' IDENTIFIER
+          | CJNE A COMMA '#' NUMBER COMMA IDENTIFIER
             {
               insertSymbol($7, lc); // ?
               add_stmt($1, CJNE_OP, $2, $5, $7, A_IMMEDIATE, 3);
             }
-           | CJNE reg ',' '#' NUMBER ',' IDENTIFIER
+           | CJNE reg COMMA '#' NUMBER COMMA IDENTIFIER
             {
               insertSymbol($7, lc); // ?
               add_stmt($1, CJNE_OP, $2, $5, $7, REG_IMMEDIATE, 3);
             }
-           | CJNE '@' ind_reg ',' '#' NUMBER ',' IDENTIFIER
+           | CJNE AT_SIGN ind_reg COMMA '#' NUMBER COMMA IDENTIFIER
             {
               insertSymbol($8, lc); // ?
               add_stmt($1, CJNE_OP, $3, $6, $8, IND_REG_IMMEDIATE, 3);
@@ -186,7 +194,7 @@ dec_stmt : DEC A
             {
               add_stmt($1, DEC_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
             }
-         | DEC '@' ind_reg
+         | DEC AT_SIGN ind_reg
             {
               add_stmt($1, DEC_OP, $2, NULL, NULL, IND_REG_TYPE, 3);
             };
@@ -196,12 +204,12 @@ div_stmt : DIV AB
               add_stmt($1, DIV_OP, $2, NULL, NULL, A_TYPE, 3);
             };
 
-djnz_stmt : DJNZ reg ',' IDENTIFIER
+djnz_stmt : DJNZ reg COMMA IDENTIFIER
             {
               insertSymbol($4, lc);
               add_stmt($1, DJNZ_OP, $2, $3, NULL, REG_TYPE, 3);
             }
-           | DJNZ dir ',' IDENTIFIER
+           | DJNZ dir COMMA IDENTIFIER
             {
               add_stmt($1, DJNZ_OP, $2, $3, NULL, DIRECT_TYPE, 3);
             };
@@ -218,7 +226,7 @@ inc_stmt : INC A
             {
               add_stmt($1, INC_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
             }
-         | INC '@' ind_reg
+         | INC AT_SIGN ind_reg
             {
               add_stmt($1, INC_OP, $3, NULL, NULL, IND_REG_TYPE, 3);
             }
@@ -227,13 +235,13 @@ inc_stmt : INC A
               /* Add to ... */
             };
 
-jb_stmt : JB bit ',' IDENTIFIER
+jb_stmt : JB bit COMMA IDENTIFIER
             {
               insertSymbol($4, lc);
               add_stmt($1, JB_OP, $2, $4, NULL, BIT_TYPE, 3);
             };
 
-jbc_stmt : JBC bit ',' IDENTIFIER
+jbc_stmt : JBC bit COMMA IDENTIFIER
             {
               insertSymbol($4, lc);
               add_stmt($1, JBC_OP, $2, $4, NULL, BIT_TYPE, 3);
@@ -245,12 +253,12 @@ jc_stmt : JC IDENTIFIER
               add_stmt($1, JC_OP, $2, NULL, NULL, RELATIVE, 3);
             };
 
-jmp_stmt : JMP '@' A '+' DPTR
+jmp_stmt : JMP AT_SIGN A '+' DPTR
             {
               add_stmt($1, JMP_OP, $3, $5, NULL, A_DIRECT, 3);
             };
 
-jnb_stmt : JNB bit ',' IDENTIFIER
+jnb_stmt : JNB bit COMMA IDENTIFIER
             {
               insertSymbol($4, lc);
               add_stmt($1, JNB_OP, $2, $4, NULL, BIT_TYPE, 3);
@@ -294,101 +302,101 @@ ljmp_stmt : LJMP IDENTIFIER
                 add_stmt($1, LJMP_OP, $2, NULL, NULL, ABSOLUTE, 3);
               };
 
-mov_stmt : MOV A ',' reg 
+mov_stmt : MOV A COMMA reg 
             {
               add_stmt($1, 0xe0, $2, $4, NULL, A_REG_TYPE, 3);
             }
-         | MOV A ',' dir
+         | MOV A COMMA dir
             {
               add_stmt($1, 0xe0, $2, $4, NULL, A_DIRECT, 3);
             }
-         | MOV A ',' '@' ind_reg
+         | MOV A COMMA AT_SIGN ind_reg
             {
               add_stmt($1, 0xe0, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | MOV A ',' '#' NUMBER
+         | MOV A COMMA '#' NUMBER
             {
               add_stmt($1, 0x70, $2, $5, NULL, A_IMMEDIATE, 3);
             }
-         | MOV reg ',' A
+         | MOV reg COMMA A
             {
               add_stmt($1, 0xf0, $2, $4, NULL, REG_A, 3);
             }
-         | MOV reg ',' dir
+         | MOV reg COMMA dir
             {
               add_stmt($1, 0xa0, $2, $4, NULL, REG_DIRECT, 3);
             }
-         | MOV reg ',' '#' NUMBER
+         | MOV reg COMMA '#' NUMBER
             {
               add_stmt($1, 0x70, $2, $5, NULL, REG_IMMEDIATE, 3);
             }
-         | MOV dir ',' A 
+         | MOV dir COMMA A 
             {
               add_stmt($1, 0xf0, $2, $4, NULL, DIRECT_A, 3);
             }
-         | MOV dir ',' reg 
+         | MOV dir COMMA reg 
             {
               add_stmt($1, 0x80, $2, $4, NULL, DIRECT_REG, 3);
             }
-         | MOV dir ',' dir
+         | MOV dir COMMA dir
             {
               add_stmt($1, 0x80, $2, $4, NULL, DIRECT_DIRECT, 3);
             }
-         | MOV dir ',' '@' ind_reg
+         | MOV dir COMMA AT_SIGN ind_reg
             {
               add_stmt($1, 0x80, $2, $5, NULL, DIRECT_IND_REG, 3);
             }
-         | MOV dir ',' '#' NUMBER
+         | MOV dir COMMA '#' NUMBER
             {
               add_stmt($1, 0x70, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             }
-         | MOV '@' ind_reg ',' A 
+         | MOV AT_SIGN ind_reg COMMA A 
             {
               add_stmt($1, 0xf0, $3, $5, NULL, IND_REG_A, 3);
             }
-         | MOV '@' ind_reg ',' dir
+         | MOV AT_SIGN ind_reg COMMA dir
             {
               add_stmt($1, 0xa0, $3, $5, NULL, IND_REG_DIRECT, 3);
             }
-         | MOV '@' ind_reg ',' '#' NUMBER 
+         | MOV AT_SIGN ind_reg COMMA '#' NUMBER 
             {
               add_stmt($1, 0x70, $3, $6, NULL, IND_REG_IMMEDIATE, 3);
             }
-         | MOV C ',' bit
+         | MOV C COMMA bit
             {
               /* Add to ... */
             }
-         | MOV bit ',' C
+         | MOV bit COMMA C
             {
               /* Add to ... */
             }
-         | MOV DPTR ',' '#' NUMBER
+         | MOV DPTR COMMA '#' NUMBER
             {
               /* Add to ... */
             };
 
-movc_stmt : MOVC A ',' '@' A '+' DPTR
+movc_stmt : MOVC A COMMA AT_SIGN A '+' DPTR
               {
                 /* Add to ... */
               }
-          | MOVC A ',' '@' A '+' PC
+          | MOVC A COMMA AT_SIGN A '+' PC
               {
                 /* Add to ... */
               };
 
-movx_stmt : MOVX A ',' '@' ind_reg
+movx_stmt : MOVX A COMMA AT_SIGN ind_reg
               {
                 /* Add to ... */
               }
-          | MOVX A ',' '@' DPTR
+          | MOVX A COMMA AT_SIGN DPTR
               {
                 /* Add to ... */
               }
-          | MOVX '@' ind_reg ',' A 
+          | MOVX AT_SIGN ind_reg COMMA A 
               {
                 /* Add to ... */
               }
-          | MOVX '@' DPTR ',' A
+          | MOVX AT_SIGN DPTR COMMA A
               {
                 /* Add to ... */
               } 
@@ -403,35 +411,35 @@ nop_stmt : NOP
               add_stmt($1, NOP_OP, NULL, NULL, NULL, NULL, 3);
             };
 
-orl_stmt : ORL A ',' reg
+orl_stmt : ORL A COMMA reg
             {
               add_stmt($1, ORL_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
-         | ORL A ',' dir 
+         | ORL A COMMA dir 
             {
               add_stmt($1, ORL_OP, $2, $4, NULL, A_DIRECT, 3);
             }
-         | ORL A ',' '@' ind_reg
+         | ORL A COMMA AT_SIGN ind_reg
             {
               add_stmt($1, ORL_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | ORL A ',' '#' NUMBER
+         | ORL A COMMA '#' NUMBER
             {
               add_stmt($1, ORL_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             }
-         | ORL dir ',' A
+         | ORL dir COMMA A
             {
               add_stmt($1, ORL_OP, $2, $4, NULL, DIRECT_A, 3);
             }
-         | ORL dir ',' '#' NUMBER
+         | ORL dir COMMA '#' NUMBER
             {
               add_stmt($1, ORL_OP, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             }
-         | ORL C ',' bit
+         | ORL C COMMA bit
             {
               /* Add to ... */
             } 
-         | ORL C ',' '/' bit
+         | ORL C COMMA '/' bit
             {
               /* Add to ... */
             };
@@ -491,19 +499,19 @@ sjmp_stmt : SJMP IDENTIFIER
                 add_stmt($1, SJMP_OP, $2, NULL, NULL, RELATIVE, 3);
               };
 
-subb_stmt : SUBB A ',' reg
+subb_stmt : SUBB A COMMA reg
             {
               add_stmt($1, SUBB_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
-         | SUBB A ',' dir
+         | SUBB A COMMA dir
             {
               add_stmt($1, SUBB_OP, $2, $4, NULL, A_DIRECT, 3);
             }
-         | SUBB A ',' '@' ind_reg
+         | SUBB A COMMA AT_SIGN ind_reg
             {
               add_stmt($1, SUBB_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | SUBB A ',' '#' NUMBER
+         | SUBB A COMMA '#' NUMBER
             {
               add_stmt($1, SUBB_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             };
@@ -513,61 +521,163 @@ swap_stmt : SWAP A
                 add_stmt($1, SWAP_OP, $2, NULL, NULL, A_TYPE, 3); 
               };
 
-xch_stmt : XCH A ',' reg 
+xch_stmt : XCH A COMMA reg 
             {
               add_stmt($1, XCH_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
-         | XCH A ',' dir
+         | XCH A COMMA dir
             {
               add_stmt($1, XCH_OP, $2, $4, NULL, A_DIRECT, 3);
             }
-         | XCH A ',' '@' ind_reg
+         | XCH A COMMA AT_SIGN ind_reg
             {
               add_stmt($1, XCH_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             };
 
-xchd_stmt : XCHD A ',' '@' ind_reg
+xchd_stmt : XCHD A COMMA AT_SIGN ind_reg
               {
                 add_stmt($1, XCHD_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
               };
 
-xrl_stmt : XRL A ',' reg
+xrl_stmt : XRL A COMMA reg
             {
               add_stmt($1, XRL_OP, $2, $4, NULL, A_REG_TYPE, 3);
             }
-         | XRL A ',' dir 
+         | XRL A COMMA dir 
             {
               add_stmt($1, XRL_OP, $2, $4, NULL, A_DIRECT, 3);
             }
-         | XRL A ',' '@' ind_reg
+         | XRL A COMMA AT_SIGN ind_reg
             {
               add_stmt($1, XRL_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | XRL A ',' '#' NUMBER
+         | XRL A COMMA '#' NUMBER
             {
               add_stmt($1, XRL_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             }
-         | XRL dir ',' A
+         | XRL dir COMMA A
             {
               add_stmt($1, XRL_OP, $2, $4, NULL, DIRECT_A, 3);
             }
-         | XRL dir ',' '#' NUMBER
+         | XRL dir COMMA '#' NUMBER
             {
               add_stmt($1, XRL_OP, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             };
 
-label: IDENTIFIER':'
+label: IDENTIFIER TWO_DOTS
         {
-          insertSymbol($1, lc);
+          $1.value = lc;;
         };   
 
-dir : A | B | PSW | DPL | DPH | SP | P0 | P1 | TCON | TMOD | TLO | TL1 | TH0 | TH1 | SCON | SBUF | NUMBER
+dir : A 
+        {
+          $$ = ACC_REG;
+        }
+    | B
+        {
+          $$ = B_REG;
+        } 
+    | PSW
+        {
+          $$ = PSW_REG;
+        }  
+    | DPL 
+        {
+          $$ = DPL_REG;
+        } 
+    | DPH
+        {
+          $$ = DPH_REG;
+        }  
+    | SP
+        {
+          $$ = SP_REG;
+        } 
+    | P0 
+        {
+          $$ = P0_REG;
+        } 
+    | P1 
+        {
+          $$ = P1_REG;
+        } 
+    | TCON 
+        {
+          $$ = TCON_REG;
+        } 
+    | TMOD
+        {
+          $$ = TMOD_REG;
+        }  
+    | TL0
+        {
+          $$ = TL0_REG;
+        }  
+    | TL1
+        {
+          $$ = TL1_REG;
+        }  
+    | TH0
+        {
+          $$ = TH0_REG;
+        }  
+    | TH1
+        {
+          $$ = TH1_REG;
+        }  
+    | SCON
+        {
+          $$ = SCON_REG;
+        }  
+    | SBUF
+        {
+          $$ = SBUF_REG;
+        }  
+    | NUMBER;
 
 bit : /* Não sei ainda */
 
-reg : R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7 
+reg : R0
+        {
+          $$ = R0_REG;
+        }
+    | R1
+        {
+          $$ = R1_REG;
+        } 
+    | R2
+        {
+          $$ = R2_REG;
+        } 
+    | R3 
+        {
+          $$ = R3_REG;
+        } 
+    | R4
+        {
+          $$ = R4_REG;
+        }  
+    | R5
+        {
+          $$ = R5_REG;
+        }  
+    | R6 
+        {
+          $$ = R6_REG;
+        } 
+    | R7
+        {
+          $$ = R7_REG;
+        };  
 
-ind_reg : R0 | R1
+ind_reg : R0
+            {
+              $$ = R0_REG;
+            } 
+        | R1
+            {
+              $$ = R1_REG;
+            }; 
 
 %%
 
@@ -575,10 +685,4 @@ int yyerror(char * message)
 { printf("Syntax error: %s\n",message);
   return 0;
 }
-
-/* yylex calls getToken to make Yacc/Bison output
- * compatible with ealier versions of the TINY scanner
- */
-static int yylex(void)
-{ return getToken(); }
 
