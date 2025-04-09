@@ -4,8 +4,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "globals.h"
-#define YYSTYPE type
-
+#include "symtab.h"
 #include "a51.tab.h"
 %}
 
@@ -21,6 +20,9 @@ _HEX            [0-9A-Fa-f]+[Hh]
 _DECIMAL        {_DIGIT}+[Dd]?
 _BINARY         [01]+[Bb]     
 
+_HASH_TAG	 "#"
+_AT_SIGN	 "@"
+_TWO_DOTS	 ":"
 _COMMA          ","
 _LINE_COMMENT   [;].*
 _WHITE_SPACE    [ \t\n] 
@@ -37,14 +39,12 @@ _OP_EXCLAMATION  "!"
 _OP_OPEN_PAREN   "(" 
 _OP_CLOSE_PAREN  ")" 
 _APOSTROPHE 	 "'" 
-_HASH_TAG	 "#"
-_AT_SIGN	 "@"
-_TWO_DOTS	 ":"
 
 
 
 /*Registers*/
-_ACC_REG        "A"
+_A_REG			"A" 
+_ACC_REG        "ACC"
 _B_REG          "B"
 _C_REG          "C"
 _AB_REG         "AB"
@@ -292,8 +292,10 @@ _POP             "POP"
 	/* Registers */
 {_AB_REG}      { printf("REGISTER: A\n REGISTER: B\n");
 		return AB; }
-{_ACC_REG}      { printf("REGISTER: ACC\n");
+{_A_REG}      { printf("REGISTER: A\n");
 		return A; }
+{_ACC_REG}      { printf("REGISTER: ACC\n");
+		return ACC; }
 {_B_REG}        { printf("REGISTER: B\n");
 		return B; }
 {_C_REG}        { printf("REGISTER: C\n");
@@ -336,40 +338,50 @@ _POP             "POP"
 
 	/* Numbers */
 {_HEX}   	{char *end;
-            	char *numstr = strdup(yytext);
-            	if (toupper(numstr[strlen(numstr)-1]) == 'H') {
-                	numstr[strlen(numstr)-1] = '\0';}
-            	long n = strtol(numstr, &end, 16);
-            	free(numstr);
-            	yylval.num = (int)n;
-            	printf("HEX Number: %d(%s)\n", yylval.num, yytext);
-            	return NUMBER;}
+			    char *numstr = strdup(yytext);
+			    
+			    /* Remove trailing 'H' or 'h' */
+			    if (toupper(numstr[strlen(numstr)-1]) == 'H') {
+				numstr[strlen(numstr)-1] = '\0';
+			    }
+			    
+			    yylval.num = (int)strtol(numstr, &end, 16);
+			    free(numstr);
+			    printf("HEX Number: %d(%s)\n", yylval.num, yytext);
+			    return NUMBER;}
             	
 {_BINARY} 	{char *end;
-            	char *numstr = strdup(yytext);
-            	if (toupper(numstr[strlen(numstr)-1]) == 'B') {
-                	numstr[strlen(numstr)-1] = '\0';}
-            	long n = strtol(numstr, &end, 2);
-            	free(numstr);
-            	yylval.num = (int)n;
-            	printf("BINARY Number: %d(%s)\n", yylval.num, yytext);
-            	return NUMBER;}
+		    	char *numstr = strdup(yytext);
+		    
+		   	 /* Remove trailing 'B' or 'b' */
+		   	 if (toupper(numstr[strlen(numstr)-1]) == 'B') {
+			numstr[strlen(numstr)-1] = '\0';
+		    	}
+		    
+		    	/* Convert binary string to integer */
+		    	yylval.num = (int)strtol(numstr, &end, 2);
+		    	free(numstr);
+		    
+		    	printf("BINARY Number: %d(%s)\n", yylval.num, yytext);
+		    	return NUMBER;}
             	
 {_DECIMAL} 	{char *end;
-	    	char *numstr = strdup(yytext);
-	    	if (toupper(numstr[strlen(numstr)-1]) == 'D') {
-	        	numstr[strlen(numstr)-1] = '\0';}
-	    	long n = strtol(numstr, &end, 10);
-	    	free(numstr);
-	    	yylval.num = (int)n;
-	    	printf("DECIMAL Number: %d(%s)\n", yylval.num, yytext);
-	    	return NUMBER;}
+		    char *numstr = strdup(yytext);
+		    
+		    /* Remove trailing 'D' or 'd' if present */
+		    if (toupper(numstr[strlen(numstr)-1]) == 'D') {
+			numstr[strlen(numstr)-1] = '\0';
+		    }
+		    
+		    yylval.num = (int)strtol(numstr, &end, 10);
+		    free(numstr);
+		    printf("DECIMAL Number: %d(%s)\n", yylval.num, yytext);
+		    return NUMBER;}
 	
 	
 	/* Identifiers */
-{_IDENTIFIER}   { printf("IDENTIFIER: %s\n", yytext);
-		 yylval.str = yytext; //isto não vai dar (CORRIGIR)
-		 return IDENTIFIER; }
+{_IDENTIFIER}   { yylval.bucket = insertSymbolempty(yytext);
+			return IDENTIFIER; }
 
 
 

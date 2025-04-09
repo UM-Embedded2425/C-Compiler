@@ -25,8 +25,12 @@ extern int current_line;
 #define FALSE 0
 #endif
 
+#ifndef NO_OP
+#define NO_OP 0
+#endif 
 
-// Define Operands
+// Define Operands Type 
+
 #define NO_TYPE 0
 #define A_REG_TYPE 1
 #define A_IND_REG_TYPE 2

@@ -6,7 +6,7 @@
 #include "symtab.h"
 
 
-static int yylex(void);
+int yylex(void);
 int yyerror(char * message);
 static int savedLineNo;
 
@@ -36,7 +36,9 @@ static int savedLineNo;
 /* MISC tokens */
 %token <bucket> IDENTIFIER 
 %token <num> AB
+
 %token COMMA HASH_TAG TWO_DOTS AT_SIGN OP_CLOSE_PAREN OP_OPEN_PAREN
+%token OP_PLUS OP_MINUS OP_MUL OP_DIV OP_AND
 
 %type <num> dir bit
 
@@ -53,9 +55,14 @@ stmt : acall_stmt | add_stmt | addc_stmt | ajmp_stmt | anl_stmt | cjne_stmt | cl
      | setb_stmt | sjmp_stmt | subb_stmt | swap_stmt | xch_stmt | xchd_stmt | xrl_stmt 
      | label 
 
+acall_stmt : ACALL IDENTIFIER
+              {
+                add_stmt(ACALL_OP, ACALL_OP, NO_OP, NO_OP, &($2->value), ABSOLUTE, 3);
+              };
+
 ajmp_stmt : AJMP IDENTIFIER
               {
-                add_stmt(AJMP_OP, AJMP_OP, 0, 0, &($2->value), A_REG_TYPE, 3);
+                add_stmt(AJMP_OP, AJMP_OP, NO_OP, NO_OP, &($2->value), A_REG_TYPE, 3);
               }
 
 add_stmt : ADD A COMMA REG
@@ -87,15 +94,10 @@ addc_stmt : ADDC A COMMA REG
             {
               add_stmt($1, ADDC_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | ADDC A COMMA '#' NUMBER
+         | ADDC A COMMA HASH_TAG NUMBER
             {
               add_stmt($1, ADDC_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             };
-
-acall_stmt : ACALL IDENTIFIER
-              {
-                add_stmt(ACALL_OP, ACALL_OP, no_op, $2, NULL, ABSOLUTE, 3);
-              };
 
 anl_stmt : ANL A COMMA REG
             {
@@ -109,7 +111,7 @@ anl_stmt : ANL A COMMA REG
             {
               add_stmt($1, ANL_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | ANL A COMMA '#' NUMBER
+         | ANL A COMMA HASH_TAG NUMBER
             {
               add_stmt($1, ANL_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             }
@@ -117,7 +119,7 @@ anl_stmt : ANL A COMMA REG
             {
               add_stmt($1, ANL_OP, $2, $4, NULL, DIRECT_A, 3);
             }
-         | ANL dir COMMA '#' NUMBER
+         | ANL dir COMMA HASH_TAG NUMBER
             {
               add_stmt($1, ANL_OP, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             }
@@ -132,98 +134,98 @@ anl_stmt : ANL A COMMA REG
 
 cjne_stmt : CJNE A COMMA dir COMMA IDENTIFIER
             {
-              add_stmt($1, CJNE_OP, $2, $4, $6, A_DIRECT, 3);
+              add_stmt($1, CJNE_OP, $2, $4, &($6->value), A_DIRECT, 3);
             }
-          | CJNE A COMMA '#' NUMBER COMMA IDENTIFIER
+          | CJNE A COMMA HASH_TAG NUMBER COMMA IDENTIFIER
             {
-              add_stmt($1, CJNE_OP, $2, $5, $7, A_IMMEDIATE, 3);
+              add_stmt($1, CJNE_OP, $2, $5, &($7->value), A_IMMEDIATE, 3);
             }
-           | CJNE REG COMMA '#' NUMBER COMMA IDENTIFIER
+           | CJNE REG COMMA HASH_TAG NUMBER COMMA IDENTIFIER
             {
-              add_stmt($1, CJNE_OP, $2, $5, $7, REG_IMMEDIATE, 3);
+              add_stmt($1, CJNE_OP, $2, $5, &($7->value), REG_IMMEDIATE, 3);
             }
-           | CJNE AT_SIGN REG COMMA '#' NUMBER COMMA IDENTIFIER
+           | CJNE AT_SIGN REG COMMA HASH_TAG NUMBER COMMA IDENTIFIER
             {
-              add_stmt($1, CJNE_OP, $3, $6, $8, IND_REG_IMMEDIATE, 3);
+              add_stmt($1, CJNE_OP, $3, $6, &($8->value), IND_REG_IMMEDIATE, 3);
             };
 
 clr_stmt : CLR A 
             {
-              add_stmt($1, 0xe4, $2, NULL, NULL, A_TYPE, 3);
+              add_stmt($1, 0xe4, $2, NO_OP, NULL, A_TYPE, 3);
             }
          | CLR C 
             {
-              add_stmt($1, CLR_OP, $2, NULL, NULL, C_TYPE, 3);
+              add_stmt($1, CLR_OP, $2, NO_OP, NULL, C_TYPE, 3);
             }
          | CLR bit 
             {
-              add_stmt($1, CLR_OP, $2, NULL, NULL, BIT_TYPE, 3);
+              add_stmt($1, CLR_OP, $2, NO_OP, NULL, BIT_TYPE, 3);
             };
 
 cpl_stmt : CPL A 
             {
-              add_stmt($1, 0xf4, $2, NULL, NULL, A_TYPE, 3);
+              add_stmt($1, 0xf4, $2, NO_OP, NULL, A_TYPE, 3);
             }
          | CPL C 
             {
-              add_stmt($1, CLR_OP, $2, NULL, NULL, C_TYPE, 3);
+              add_stmt($1, CLR_OP, $2, NO_OP, NULL, C_TYPE, 3);
             }
          | CPL bit 
             {
-              add_stmt($1, CLR_OP, $2, NULL, NULL, BIT_TYPE, 3);
+              add_stmt($1, CLR_OP, $2, NO_OP, NULL, BIT_TYPE, 3);
             };       
 
 da_stmt : DA A 
            {
-            add_stmt($1, DA_OP, $2, NULL, NULL, A_TYPE, 3); 
+            add_stmt($1, DA_OP, $2, NO_OP, NULL, A_TYPE, 3); 
            }
 
 dec_stmt : DEC A 
             {
-              add_stmt($1, DEC_OP, $2, NULL, NULL, A_TYPE, 3);
+              add_stmt($1, DEC_OP, $2, NO_OP, NULL, A_TYPE, 3);
             }
          | DEC REG 
             {
-              add_stmt($1, DEC_OP, $2, NULL, NULL, REG_TYPE, 3);
+              add_stmt($1, DEC_OP, $2, NO_OP, NULL, REG_TYPE, 3);
             }
          | DEC dir 
             {
-              add_stmt($1, DEC_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
+              add_stmt($1, DEC_OP, $2, NO_OP, NULL, DIRECT_TYPE, 3);
             }
          | DEC AT_SIGN REG
             {
-              add_stmt($1, DEC_OP, $3, NULL, NULL, IND_REG_TYPE, 3);
+              add_stmt($1, DEC_OP, $3, NO_OP, NULL, IND_REG_TYPE, 3);
             };
 
 div_stmt : DIV AB
             {
-              add_stmt($1, DIV_OP, $2, NULL, NULL, A_TYPE, 3);
+              add_stmt($1, DIV_OP, $2, NO_OP, NULL, A_TYPE, 3);
             };
 
 djnz_stmt : DJNZ REG COMMA IDENTIFIER
             {
-              add_stmt($1, DJNZ_OP, $2, $4, NULL, REG_TYPE, 3);
+              add_stmt($1, DJNZ_OP, $2, NO_OP, &($4->value), REG_TYPE, 3);
             }
            | DJNZ dir COMMA IDENTIFIER
             {
-              add_stmt($1, DJNZ_OP, $2, $4, NULL, DIRECT_TYPE, 3);
+              add_stmt($1, DJNZ_OP, $2, NO_OP, &($4->value), DIRECT_TYPE, 3);
             };
 
 inc_stmt : INC A 
             {
-              add_stmt($1, INC_OP, $2, NULL, NULL, A_TYPE, 3);
+              add_stmt($1, INC_OP, $2, NO_OP, NULL, A_TYPE, 3);
             }
          | INC REG 
             {
-              add_stmt($1, INC_OP, $2, NULL, NULL, REG_TYPE, 3);
+              add_stmt($1, INC_OP, $2, NO_OP, NULL, REG_TYPE, 3);
             }
          | INC dir 
             {
-              add_stmt($1, INC_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
+              add_stmt($1, INC_OP, $2, NO_OP, NULL, DIRECT_TYPE, 3);
             }
          | INC AT_SIGN REG
             {
-              add_stmt($1, INC_OP, $3, NULL, NULL, IND_REG_TYPE, 3);
+              add_stmt($1, INC_OP, $3, NO_OP, NULL, IND_REG_TYPE, 3);
             }
          | INC DPTR 
             {
@@ -232,17 +234,17 @@ inc_stmt : INC A
 
 jb_stmt : JB bit COMMA IDENTIFIER
             {
-              add_stmt($1, JB_OP, $2, $4, NULL, BIT_TYPE, 3);
+              add_stmt($1, JB_OP, $2, NO_OP, &($4->value), BIT_TYPE, 3);
             };
 
 jbc_stmt : JBC bit COMMA IDENTIFIER
             {
-              add_stmt($1, JBC_OP, $2, $4, NULL, BIT_TYPE, 3);
+              add_stmt($1, JBC_OP, $2, NO_OP, &($4->value), BIT_TYPE, 3);
             };
 
 jc_stmt : JC IDENTIFIER
             {
-              add_stmt($1, JC_OP, $2, NULL, NULL, RELATIVE, 3);
+              add_stmt($1, JC_OP, NO_OP, NO_OP, &($2->value), RELATIVE, 3);
             };
 
 jmp_stmt : JMP AT_SIGN A '+' DPTR
@@ -252,40 +254,40 @@ jmp_stmt : JMP AT_SIGN A '+' DPTR
 
 jnb_stmt : JNB bit COMMA IDENTIFIER
             {
-              add_stmt($1, JNB_OP, $2, $4, NULL, BIT_TYPE, 3);
+              add_stmt($1, JNB_OP, $2, NO_OP, &($4->value), BIT_TYPE, 3);
             };
 
 jnc_stmt : JNC IDENTIFIER
             {
-              add_stmt($1, JNC_OP, $2, NULL, NULL, RELATIVE, 3);
+              add_stmt($1, JNC_OP, NO_OP, NO_OP, &($2->value), RELATIVE, 3);
             };
 
 jnz_stmt : JNZ IDENTIFIER
             {
-              add_stmt($1, JNZ_OP, $2, NULL, NULL, RELATIVE, 3);
+              add_stmt($1, JNZ_OP, NO_OP, NO_OP, &($2->value), RELATIVE, 3);
             };
 
 jz_stmt : JZ IDENTIFIER
             {
-              add_stmt($1, JZ_OP, $2, NULL, NULL, RELATIVE, 3);
+              add_stmt($1, JZ_OP, NO_OP, NO_OP, &($2->value), RELATIVE, 3);
             };
 
 lcall_stmt : LCALL IDENTIFIER
               {
-                add_stmt($1, LCALL_OP, $2, NULL, NULL, ABSOLUTE, 3);
+                add_stmt($1, LCALL_OP, NO_OP, NO_OP, &($2->value), ABSOLUTE, 3);
               }
            | LCALL NUMBER 
               {
-                add_stmt($1, LCALL_OP, $2, NULL, NULL, ABSOLUTE, 3);
+                add_stmt($1, LCALL_OP, $2, NO_OP, NULL, ABSOLUTE, 3);
               };
 
 ljmp_stmt : LJMP IDENTIFIER
               {
-                add_stmt($1, LJMP_OP, $2, NULL, NULL, ABSOLUTE, 3);
+                add_stmt($1, LJMP_OP, NO_OP, NO_OP, &($2->value), ABSOLUTE, 3);
               }
            | LJMP NUMBER 
               {
-                add_stmt($1, LJMP_OP, $2, NULL, NULL, ABSOLUTE, 3);
+                add_stmt($1, LJMP_OP, $2, NO_OP, NULL, ABSOLUTE, 3);
               };
 
 mov_stmt : MOV A COMMA REG 
@@ -300,7 +302,7 @@ mov_stmt : MOV A COMMA REG
             {
               add_stmt($1, 0xe0, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | MOV A COMMA '#' NUMBER
+         | MOV A COMMA HASH_TAG NUMBER
             {
               add_stmt($1, 0x70, $2, $5, NULL, A_IMMEDIATE, 3);
             }
@@ -312,7 +314,7 @@ mov_stmt : MOV A COMMA REG
             {
               add_stmt($1, 0xa0, $2, $4, NULL, REG_DIRECT, 3);
             }
-         | MOV REG COMMA '#' NUMBER
+         | MOV REG COMMA HASH_TAG NUMBER
             {
               add_stmt($1, 0x70, $2, $5, NULL, REG_IMMEDIATE, 3);
             }
@@ -332,7 +334,7 @@ mov_stmt : MOV A COMMA REG
             {
               add_stmt($1, 0x80, $2, $5, NULL, DIRECT_IND_REG, 3);
             }
-         | MOV dir COMMA '#' NUMBER
+         | MOV dir COMMA HASH_TAG NUMBER
             {
               add_stmt($1, 0x70, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             }
@@ -344,7 +346,7 @@ mov_stmt : MOV A COMMA REG
             {
               add_stmt($1, 0xa0, $3, $5, NULL, IND_REG_DIRECT, 3);
             }
-         | MOV AT_SIGN REG COMMA '#' NUMBER 
+         | MOV AT_SIGN REG COMMA HASH_TAG NUMBER 
             {
               add_stmt($1, 0x70, $3, $6, NULL, IND_REG_IMMEDIATE, 3);
             }
@@ -356,7 +358,7 @@ mov_stmt : MOV A COMMA REG
             {
               /* Add to ... */
             }
-         | MOV DPTR COMMA '#' NUMBER
+         | MOV DPTR COMMA HASH_TAG NUMBER
             {
               /* Add to ... */
             };
@@ -389,12 +391,12 @@ movx_stmt : MOVX A COMMA AT_SIGN REG
 
 mul_stmt : MUL AB
             {
-              add_stmt($1, MUL_OP, $2, NULL, NULL, A_TYPE, 3);
+              add_stmt($1, MUL_OP, $2, NO_OP, NULL, A_TYPE, 3);
             };
 
 nop_stmt : NOP 
             {
-              add_stmt($1, NOP_OP, NULL, NULL, NULL, NULL, 3);
+              add_stmt($1, NOP_OP, NO_OP, NO_OP, NULL, NO_TYPE, 3);
             };
 
 orl_stmt : ORL A COMMA REG
@@ -409,7 +411,7 @@ orl_stmt : ORL A COMMA REG
             {
               add_stmt($1, ORL_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | ORL A COMMA '#' NUMBER
+         | ORL A COMMA HASH_TAG NUMBER
             {
               add_stmt($1, ORL_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             }
@@ -417,7 +419,7 @@ orl_stmt : ORL A COMMA REG
             {
               add_stmt($1, ORL_OP, $2, $4, NULL, DIRECT_A, 3);
             }
-         | ORL dir COMMA '#' NUMBER
+         | ORL dir COMMA HASH_TAG NUMBER
             {
               add_stmt($1, ORL_OP, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             }
@@ -432,56 +434,56 @@ orl_stmt : ORL A COMMA REG
 
 pop_stmt : POP dir
             {
-              add_stmt($1, POP_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
+              add_stmt($1, POP_OP, $2, NO_OP, NULL, DIRECT_TYPE, 3);
             };
 
 push_stmt : PUSH dir
               {
-                add_stmt($1, PUSH_OP, $2, NULL, NULL, DIRECT_TYPE, 3);
+                add_stmt($1, PUSH_OP, $2, NO_OP, NULL, DIRECT_TYPE, 3);
               };
 
 ret_stmt : RET
             {
-              add_stmt($1, RET_OP, NULL, NULL, NULL, NULL, 3); 
+              add_stmt($1, RET_OP, NO_OP, NO_OP, NULL, NO_TYPE, 3); 
             };
 
 reti_stmt : RETI
               {
-                add_stmt($1, RETI_OP, NULL, NULL, NULL, NULL, 3); 
+                add_stmt($1, RETI_OP, NO_OP, NO_OP, NULL, NO_TYPE, 3); 
               };
 
 rl_stmt : RL A
             {
-              add_stmt($1, RL_OP, $2, NULL, NULL, A_TYPE, 3); 
+              add_stmt($1, RL_OP, $2, NO_OP, NULL, A_TYPE, 3); 
             };
 
 rlc_stmt : RLC A
             {
-              add_stmt($1, RLC_OP, $2, NULL, NULL, A_TYPE, 3); 
+              add_stmt($1, RLC_OP, $2, NO_OP, NULL, A_TYPE, 3); 
             };
 
 rr_stmt : RR A
             {
-              add_stmt($1, RR_OP, $2, NULL, NULL, A_TYPE, 3); 
+              add_stmt($1, RR_OP, $2, NO_OP, NULL, A_TYPE, 3); 
             };
 
 rrc_stmt : RRC A 
             {
-              add_stmt($1, RRC_OP, $2, NULL, NULL, A_TYPE, 3); 
+              add_stmt($1, RRC_OP, $2, NO_OP, NULL, A_TYPE, 3); 
             };
 
 setb_stmt : SETB C
               {
-                add_stmt($1, SETB_OP, $2, NULL, NULL, C_TYPE, 3);
+                add_stmt($1, SETB_OP, $2, NO_OP, NULL, C_TYPE, 3);
               }
           | SETB bit
               {
-                add_stmt($1, SETB_OP, $2, NULL, NULL, BIT_TYPE, 3);
+                add_stmt($1, SETB_OP, $2, NO_OP, NULL, BIT_TYPE, 3);
               };
 
 sjmp_stmt : SJMP IDENTIFIER
               {
-                add_stmt($1, SJMP_OP, $2, NULL, NULL, RELATIVE, 3);
+                add_stmt($1, SJMP_OP, NO_OP, NO_OP, &($2->value), RELATIVE, 3);
               };
 
 subb_stmt : SUBB A COMMA REG
@@ -496,14 +498,14 @@ subb_stmt : SUBB A COMMA REG
             {
               add_stmt($1, SUBB_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | SUBB A COMMA '#' NUMBER
+         | SUBB A COMMA HASH_TAG NUMBER
             {
               add_stmt($1, SUBB_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             };
 
 swap_stmt : SWAP A
               {
-                add_stmt($1, SWAP_OP, $2, NULL, NULL, A_TYPE, 3); 
+                add_stmt($1, SWAP_OP, $2, NO_OP, NULL, A_TYPE, 3); 
               };
 
 xch_stmt : XCH A COMMA REG 
@@ -536,7 +538,7 @@ xrl_stmt : XRL A COMMA REG
             {
               add_stmt($1, XRL_OP, $2, $5, NULL, A_IND_REG_TYPE, 3);
             }
-         | XRL A COMMA '#' NUMBER
+         | XRL A COMMA HASH_TAG NUMBER
             {
               add_stmt($1, XRL_OP, $2, $5, NULL, A_IMMEDIATE, 3);
             }
@@ -544,7 +546,7 @@ xrl_stmt : XRL A COMMA REG
             {
               add_stmt($1, XRL_OP, $2, $4, NULL, DIRECT_A, 3);
             }
-         | XRL dir COMMA '#' NUMBER
+         | XRL dir COMMA HASH_TAG NUMBER
             {
               add_stmt($1, XRL_OP, $2, $5, NULL, DIRECT_IMMEDIATE, 3);
             };
