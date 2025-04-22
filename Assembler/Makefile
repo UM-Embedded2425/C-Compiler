@@ -6,7 +6,7 @@
 
 CC = gcc
 
-CFLAGS = 
+CFLAGS = -g
 
 YACC = bison
 LEX = flex
@@ -43,7 +43,7 @@ code_gen.o: code_gen.c globals.h symtab.h
 clean:
 	-rm as51
 	-rm lex.yy.c
-	-rm a51.tab.c a51.tab.h a51.output
+	-rm a51.tab.c a51.tab.h a51.output output.coe
 	-rm $(OBJS)
 
 all: as51

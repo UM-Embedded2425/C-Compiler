@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+char end_error = 0;
+
 char * copyString(char * s)
 { int n;
   char * t;
@@ -11,10 +13,6 @@ char * copyString(char * s)
   t = malloc(n);
   if (t!=NULL) strcpy(t,s);
   return t;
-}
-
-void print_code(int code, int N, int lc) {
-  // Not implemented yet
 }
 
 

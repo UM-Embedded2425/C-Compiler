@@ -6,9 +6,6 @@
 #include <string.h>
 #include <ctype.h>
 
-// Define location counter
-extern int lc;
-
 // Define the current statement value
 extern int current_ir;
 
@@ -29,8 +26,8 @@ extern int current_line;
 #define NO_OP 0
 #endif 
 
-// Define Operands Type 
 
+// Define Operands
 #define NO_TYPE 0
 #define A_REG_TYPE 1
 #define A_IND_REG_TYPE 2
@@ -59,8 +56,50 @@ extern int current_line;
 #define RELATIVE 25
 #define C_TYPE 26
 #define BIT_TYPE 27
+#define AB_TYPE 28
+#define PC_TYPE 29
+#define DPTR_IMMEDIATE 30
 
 // end of operands
+
+// Define the registers
+// Define the 4 banks of registers for the 8051 ISA
+#define R0_BANK0 0x00
+#define R1_BANK0 0x01
+#define R2_BANK0 0x02
+#define R3_BANK0 0x03
+#define R4_BANK0 0x04
+#define R5_BANK0 0x05
+#define R6_BANK0 0x06
+#define R7_BANK0 0x07
+
+#define R0_BANK1 0x08
+#define R1_BANK1 0x09
+#define R2_BANK1 0x0A
+#define R3_BANK1 0x0B
+#define R4_BANK1 0x0C
+#define R5_BANK1 0x0D
+#define R6_BANK1 0x0E
+#define R7_BANK1 0x0F
+
+#define R0_BANK2 0x10
+#define R1_BANK2 0x11
+#define R2_BANK2 0x12
+#define R3_BANK2 0x13
+#define R4_BANK2 0x14
+#define R5_BANK2 0x15
+#define R6_BANK2 0x16
+#define R7_BANK2 0x17
+
+#define R0_BANK3 0x18
+#define R1_BANK3 0x19
+#define R2_BANK3 0x1A
+#define R3_BANK3 0x1B
+#define R4_BANK3 0x1C
+#define R5_BANK3 0x1D
+#define R6_BANK3 0x1E
+#define R7_BANK3 0x1F
+
 
 // Define SFR values
 
@@ -131,7 +170,6 @@ extern int current_line;
 #define DA_OP 212           
 #define DJNZ_OP 213
 #define XCHD_OP 214
-#define MOVX_OP 224
 
 //Opcodes for directives
 #define BIT_OP 129

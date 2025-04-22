@@ -5,14 +5,19 @@
 // Declare the IR table
 instruction *IR;
 int size;
+int lineno;
+
+init_mode_t init_mode;
 
 // Hash table containing symbols
 bucketList *symbol_table[MAX_HASH_TABLE_SIZE];
 
 // Utils to deal with the IR table
-
 int current_ir;
-int lc;
+location_counter_t lc;
+
+// Table with max bytes for each segment
+int max_seg[5] = {MAX_CODE_LENGTH, MAX_DATA_LENGTH, MAX_XDATA_LENGTH, MAX_IDATA_LENGTH, MAX_BIT_LENGTH};
 
 void initIR() {
 
@@ -28,18 +33,18 @@ void initIR() {
         IR[i].info = NO_TYPE;
         IR[i].N = 0;
     }
-
     current_ir = 0;
-    lc = 0;
+    lc.segment = 0;
+    for (size_t i = 0; i < 5; i++)
+        lc.value[i] = 0;
 }
 
-void add_stmt(int operation, int opcode, int op1, int op2, int *op3, int op_type ,int n) {
+void add_stmt(int operation, int opcode, long int op1, int op2, int *op3, int op_type ,int n) {
 
     if (current_ir >= size) {
         size *= 2;
         IR = realloc(IR, size*sizeof(instruction));
     } 
-    printf("%d\n", 1);
     IR[current_ir].op_type = operation;
     IR[current_ir].op_code = opcode;
     IR[current_ir].op_1 = op1;
@@ -48,13 +53,7 @@ void add_stmt(int operation, int opcode, int op1, int op2, int *op3, int op_type
     IR[current_ir].info = op_type;
     IR[current_ir].N = n;
     current_ir++;
-    printf("%d\n", 2);
-    if (operation == ORG_OP) {
-        lc = symbol_table[op1]->value;
-    }
-    else {
-        lc += n;
-    }
+    lc.value[CODE_SEGMENT] += n;
 }
 
 // Utils to deal with symbol table
@@ -72,7 +71,7 @@ void initSymbolTable() {
     }
 }
 
-bucketList * insertSymbol(const char *label, int value) {
+bucketList * insertSymbol(const char *label, int value, segment_t segment) {
     unsigned int index = hash(label);
 
     if (symbol_table[index] == NULL) //Empty bucket
@@ -80,12 +79,14 @@ bucketList * insertSymbol(const char *label, int value) {
         symbol_table[index] = (bucketList *)malloc(sizeof(bucketList));
         strcpy(symbol_table[index]->label, label);
         symbol_table[index]->value = value;
+        symbol_table[index]->segment = segment;
         symbol_table[index]->next = NULL;
         return symbol_table[index];
     }
     else if (strcmp(symbol_table[index]->label, label) == 0) //Same symbol
     {
         symbol_table[index]->value = value;
+        symbol_table[index]->segment = segment;
         return symbol_table[index];
     }
     else
@@ -110,6 +111,7 @@ bucketList * insertSymbol(const char *label, int value) {
             return current->next;
         }
     }
+    return NULL; // This line should never be reached
 
 }
 
@@ -122,6 +124,7 @@ bucketList * insertSymbolempty(const char *label) {
         strcpy(symbol_table[index]->label, label);
         symbol_table[index]->value = 0;
         symbol_table[index]->next = NULL;
+        symbol_table[index]->segment = UNDEF_SEGMENT;
         return symbol_table[index];
     }
     else if (strcmp(symbol_table[index]->label, label) == 0) //Same symbol
@@ -145,10 +148,12 @@ bucketList * insertSymbolempty(const char *label) {
             current->next = (bucketList *)malloc(sizeof(bucketList));
             strcpy(current->next->label, label);
             current->next->value = 0;
+            current->next->segment = UNDEF_SEGMENT;
             current->next->next = NULL;
             return current->next;
         }
     }
+    return NULL; // This line should never be reached
 
 }
 

@@ -9,12 +9,14 @@
 
 extern FILE *yyin;
 int current_line;
+int end;
 
 int main(int argc,char *argv[]) {
 
     initIR();
     initSymbolTable();
     current_line = 1;
+    end = 0;
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <input_file>\n", argv[0]);
@@ -28,17 +30,12 @@ int main(int argc,char *argv[]) {
         printSymbolTable();
     #endif
     
-    printf("\nCode Generation\n");
-    printf("------------\n");
-    codeGen();
+    if (!end_error) {
+        codeGen();
+    }
   
     fclose(yyin);
     return 0;
 }
-
-
-
-
-
 
 
