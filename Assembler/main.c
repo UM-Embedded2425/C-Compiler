@@ -5,7 +5,7 @@
 
 #include "a51.tab.h"
 
-#define PRINT_SYMTAB
+//#define PRINT_SYMTAB
 
 extern FILE *yyin;
 int current_line;

@@ -679,18 +679,16 @@ exp         : exp LT simple_exp
                  { $$ = $1 == $3;
                  }
             | simple_exp { $$ = $1; 
-            printf("HEY\n");
             }
             ;
 simple_exp  : simple_exp SUM term 
                  { $$ = $1 + $3;
-                 printf("PLUS\n");
                  }
             | simple_exp MINUS term
                  { $$ = $1 - $3;
                  } 
             | term { $$ = $1; 
-            printf("SIMPLE");}
+            }
             ;
             
 term        : term MULTIPLY factor 

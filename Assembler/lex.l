@@ -213,191 +213,143 @@ _END			"END"|"end"
 	/* Instructions */
 
 {_ACALL} {
-	printf("INSTRUCTION: ACALL\n");
 	return ACALL;
 }
 {_ADD} {
-	printf("INSTRUCTION: ADD\n");
 	return ADD; 
 }
 {_ADDC} {
-	printf("INSTRUCTION: ADDC\n");
 	return ADDC;
 }
 {_AJMP}  {
-	printf("INSTRUCTION: AJMP\n");
 	return AJMP; 
 }
 {_ANL} {
-	printf("INSTRUCTION: ANL\n");
 	return ANL;
 }
 {_CJNE} {
-	printf("INSTRUCTION: CJNE\n");
 	return CJNE;
 }
 {_CLR} {
-	printf("INSTRUCTION: CLR\n");
 	return CLR;
 }
 {_CPL} {
-	printf("INSTRUCTION: CPL\n");
 	return CPL;
 }
 {_DA} {
-	printf("INSTRUCTION: DA\n");
 	return DA;
 }
 {_DEC} {
-	printf("INSTRUCTION: DEC\n");
 	return DEC;
 }
 {_DIV} {
-	printf("INSTRUCTION: DIV\n");
 	return DIV;
 }
 {_DJNZ} {
-	printf("INSTRUCTION: DJNZ\n");
 	return DJNZ;
 }	
 {_INC} {
-	printf("INSTRUCTION: INC\n");
 	return INC;
 }
 {_JB} {
-	printf("INSTRUCTION: JB\n");
 	return JB;
 }
 {_JBC} {
-	printf("INSTRUCTION: JBC\n");
 	return JBC;
 }
 {_JC} {
-	printf("INSTRUCTION: JC\n");
 	return JC;
 }
 {_JMP} {
-	printf("INSTRUCTION: JMP\n");
 	return JMP;
 }			
 {_JNB} {
-	printf("INSTRUCTION: JNB\n");
 	return JNB;
 }
 {_JNC} {
-	printf("INSTRUCTION: JNC\n");
 	return JNC;
 }
 {_JNZ} {
-	printf("INSTRUCTION: JNZ\n");
 	return JNZ;
 }
 {_JZ} {
-	printf("INSTRUCTION: JZ\n");
 	return JZ;
 }
 {_LCALL} {
-	printf("INSTRUCTION: LCALL\n");
 	return LCALL;
 }
 {_LJMP} {
-	printf("INSTRUCTION: LJMP\n");
 	return LJMP;
 }
 {_MOV} {
-	printf("INSTRUCTION: MOV\n");
 	return MOV;
 }
 {_MOVC} {
-	printf("INSTRUCTION: MOVC\n");
 	return MOVC;
 }
 {_MUL} {
-	printf("INSTRUCTION: MUL\n");
 	return MUL;
 }
 {_NOP} {
-	printf("INSTRUCTION: NOP\n");
 	return NOP;
 }								
 {_ORL} {
-	printf("INSTRUCTION: ORL\n");
 	return ORL;
 }
 {_POP} {
-	printf("INSTRUCTION: POP\n");
 	return POP;
 }
 {_PUSH} {
-	printf("INSTRUCTION: PUSH\n");
 	return PUSH;
 }
 {_RET} {
-	printf("INSTRUCTION: RET\n");
 	return RET;
 }
 {_RETI} {
-	printf("INSTRUCTION: RETI\n");
 	return RETI;
 }
 {_RL} {
-	printf("INSTRUCTION: RL\n");
 	return RL;
 }
 {_RLC} {
-	printf("INSTRUCTION: RLC\n");
 	return RLC;
 }
 {_RR} {
-	printf("INSTRUCTION: RR\n");
 	return RR;
 }
 {_RRC} {
-	printf("INSTRUCTION: RRC\n");
 	return RRC;
 }
 {_SETB} {
-	printf("INSTRUCTION: SETB\n");
 	return SETB;
 }
 {_SJMP} {
-	printf("INSTRUCTION: SJMP\n");
 	return SJMP;
 }
 {_SUBB} {
-	printf("INSTRUCTION: SUBB\n");
 	return SUBB;
 }
 {_SWAP} {
-	printf("INSTRUCTION: SWAP\n");
 	return SWAP;
 }
 {_XCH} {
-	printf("INSTRUCTION: XCH\n");
 	return XCH;
 }
 {_XCHD} {
-	printf("INSTRUCTION: XCHD\n");
 	return XCHD;
 }							
 {_XRL} {
-	printf("INSTRUCTION: XRL\n");
 	return XRL;
 }
 
 	/* Compulsory Name Registers*/
-{_A_REG}      { printf("REGISTER: A\n");
-		return A; }
-{_AB_REG}	  {printf("Register : AB\n");
-		return AB;} 	
-{_C_REG}	  { printf("REGISTER: C\n");
-		return C; }	
-{_PC_REG}       { printf("REGISTER: PC\n");
-		return PC; }
+{_A_REG}      { return A; }
+{_AB_REG}	  {return AB; } 	
+{_C_REG}	  { return C; }	
+{_PC_REG}     { return PC; }
 {_B_REG}        { yylval.num = B_REG;
 		return B; }
-{_DPTR_REG}		{printf("Register: DPTR");
-		return DPTR; }
+{_DPTR_REG}		{return DPTR; }
 
 			/* SFRs */
 
@@ -467,7 +419,6 @@ _END			"END"|"end"
 		    
 		    yylval.num = (int)strtol(numstr, &end, 10);
 		    free(numstr);
-		    printf("DECIMAL Number: %d(%s)\n", yylval.num, yytext);
 		    return NUMBER;}
 
 {_HEX}		{
@@ -481,7 +432,6 @@ _END			"END"|"end"
 			    
 			    yylval.num = (int)strtol(numstr, &end, 16);
 			    free(numstr);
-			    printf("HEX Number: %d(%s)\n", yylval.num, yytext);
 			    return NUMBER;
 			}
 	    	
@@ -498,7 +448,6 @@ _END			"END"|"end"
 		    	yylval.num = (int)strtol(numstr, &end, 2);
 		    	free(numstr);
 		    
-		    	printf("BINARY Number: %d(%s)\n", yylval.num, yytext);
 		    	return NUMBER;}
 
 	/* Symbols & Operators */
@@ -556,7 +505,6 @@ _B_BIT {
 
 {_ASCII_CHAR} {
 	yylval.num = *(yytext+1);
-	printf("ASCII CHAR = %d\n",yylval.num);
 	return NUMBER;
 }
 
@@ -565,18 +513,14 @@ _B_BIT {
 	strcpy(string, yytext+1);
 	*(string+strlen(string) - 1)='\0';
 	yylval.str = string;
-	printf("ASCII STRING = %s\n", string);
 	return STRING;
 }
 
 
-{_HASH_TAG}    	{ printf("#\n");
-		 return HASH_TAG; }
-{_AT_SIGN}   	{ printf("@\n");
-		 return AT_SIGN; }
+{_HASH_TAG}    	{ return HASH_TAG; }
+{_AT_SIGN}   	{ return AT_SIGN; }
 
-{_COMMA}          { printf("COMMA\n");
-		   return COMMA; }
+{_COMMA}          { return COMMA; }
 
 {_TWO_DOTS}    { 
 		   return TWO_DOTS; }
