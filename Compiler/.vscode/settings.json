@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "ast.h": "c",
-        "bison_test.tab.h": "c"
+        "bison_test.tab.h": "c",
+        "typeinfo": "c"
     }
 }
