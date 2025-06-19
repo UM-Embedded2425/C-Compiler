@@ -23,7 +23,10 @@ int main(int argc,char *argv[]) {
         exit(1);
     }
   
-    yyin = fopen(argv[1], "r");
+    if((yyin = fopen(argv[1], "r")) == NULL) {
+        fprintf(stderr, "Error opening file %s\n", argv[1]);
+        exit(1);
+    }
     yyparse();
 
     #ifdef PRINT_SYMTAB
@@ -33,6 +36,8 @@ int main(int argc,char *argv[]) {
     if (!end_error) {
         codeGen();
     }
+
+    fprintf(stderr, "Assembly process completed.\n");
   
     fclose(yyin);
     return 0;

@@ -123,6 +123,13 @@ extern int current_line;
 #define SBUF_REG 0x99
 #define IE_REG 0xa8
 #define IP_REG 0xb8
+#define PS2_CTRL 0xc1
+#define PS2_STATUS 0xc2
+#define PS2_SBUF 0xc0
+#define VGA_CONF 0x9a
+#define VGA_DATA 0x9b
+#define VGA_H_ADDR 0x9c
+#define VGA_L_ADDR 0x9d
 
 // Define the opcodes
 

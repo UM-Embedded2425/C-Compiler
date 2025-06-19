@@ -16,7 +16,7 @@ char * copyString(char * s)
 }
 
 int checkImm8(int x, int lc) {
-  if (x > 127 || x < -128) {
+  if (x > 255 | x < 0) {
     printf("Warning: 8-bit Immediate value out of range at line number %d\n", lc);
     return 1;
   }
@@ -24,7 +24,7 @@ int checkImm8(int x, int lc) {
 }
 
 int checkImm16(int x, int lc) {
-  if (x > 32767 || x < -32768) {
+  if (x > 65535 || x < 0) {
     printf("Warning: 16-bit Immediate value out of range at line number %d\n", lc);
     return 1;
   }
@@ -32,7 +32,7 @@ int checkImm16(int x, int lc) {
 }
 
 int checkDirAddr(int x, int lc) {
-  if ((x >= 0 && x < 128) || (x == ACC_REG || x == B_REG || x == PSW_REG || x == SP_REG || x == DPL_REG || x == DPH_REG || x == P0_REG || x == P1_REG || x == TL0_REG || x == TL1_REG || x == TH0_REG || x == TH1_REG || x == IE_REG || x == IP_REG || x == TCON_REG || x == TMOD_REG || x == SCON_REG || x == SBUF_REG)) {
+  if (x >= 0 && x < 256) {
     return 0;
   }
   else {

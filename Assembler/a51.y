@@ -21,6 +21,8 @@ int yyerror(char * message);
 
 %type <num> bit dir exp factor term simple_exp seg_stmt
 
+//%define parse.error verbose
+
 /* Operation tokens */
 %token <num> ACALL ADD ADDC AJMP ANL CJNE CLR CPL DA DEC DIV DJNZ INC JB JBC JC JMP JNB JNC JNZ JZ LCALL LJMP MOV MOVC MUL NOP ORL POP PUSH RET RETI RL RLC RR RRC SETB SJMP SUBB SWAP XCH XCHD XRL 
 
@@ -42,6 +44,8 @@ int yyerror(char * message);
 %token <bucket> IDENTIFIER
 
 %% /* Grammar for as51 */
+
+main_seq: stmt_seq END;
 
 stmt_seq: stmt | stmt_seq stmt;
 
@@ -557,17 +561,17 @@ init_seq: init_el | init_seq COMMA init_el;
 
 init_el: STRING{
   long int parameter = 0;
-  for (int i = 0; i < strlen($1); i += 1 << init_mode){
+  for (int i = 0; i < strlen($1); i++){
     parameter = 0;
     for(int i2 = 0; i2 < (1 << init_mode) && (i+i2 < strlen($1)); i2++){
       parameter |= $1[i+i2] << (init_mode - i2);
     }
-    add_stmt(DB_OP, DB_OP, parameter, 0, NULL, NO_TYPE, 1 << init_mode);
+    add_stmt(DB_OP, DB_OP, parameter, 0, NULL, NO_TYPE, 3);
   }
   free($1);
 } | NUMBER{
   int parameter = $1;
-  add_stmt(DB_OP, DB_OP, parameter, 0, NULL, NO_TYPE, 1 << init_mode);
+  add_stmt(DB_OP, DB_OP, parameter, 0, NULL, NO_TYPE, 3);
 }
 
 seg_stmt: SEG
@@ -581,14 +585,10 @@ seg_stmt: SEG
   }else{
     lc.segment = $1;
     if($1 == CODE_SEGMENT){
-      if ($3 < lc.value[lc.segment]){
-        yyerror("Segment already defined");
-      } else{
-        $$ = $3;
-        add_stmt(CSEG_OP, 0, 0, 0, NULL, NO_TYPE, $3 - lc.value[lc.segment]);
-      }
+      $$ = $3;
+      add_stmt(CSEG_OP, 0, 0, 0, NULL, NO_TYPE, $3*3 - lc.value[lc.segment]);
     }
-    lc.value[lc.segment] = $3;
+    lc.value[lc.segment] = $3*3;
     $$ = $3;
   }
 } | SEG AT RAM_BIT_ADDRESS
@@ -630,13 +630,9 @@ IDENTIFIER TWO_DOTS seg_stmt{
 org : ORG exp
 {
   if(lc.segment == CODE_SEGMENT){
-      if ($2 < lc.value[lc.segment]){
-        yyerror("Segment already defined");
-      } else{
-        add_stmt(CSEG_OP, 0, 0, 0, NULL, NO_TYPE, $2 - lc.value[lc.segment]);
-      }
+      add_stmt(CSEG_OP, 0, 0, 0, NULL, NO_TYPE, ($2)*3 - lc.value[lc.segment]);
     }else{
-      lc.value[lc.segment] = $2;
+      lc.value[lc.segment] = ($2)* 3;
     }
 };
 
